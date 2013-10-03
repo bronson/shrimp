@@ -21,14 +21,14 @@ module Shrimp
 
     def initialize
       @options = {
-          :format            => 'Letter',
-          :margin            => '1cm',
-          :zoom              => 1,
-          :orientation       => 'portrait',
-          :tmpdir            => Dir.tmpdir,
-          :phantomjs         => Phantom.default_executable,
-          :rendering_time    => 30000,
-          :fail_silently     => false
+        :format            => 'Letter',
+        :margin            => '1cm',
+        :zoom              => 1,
+        :orientation       => 'portrait',
+        :tmpdir            => Dir.tmpdir,
+        :phantomjs         => Phantom.default_executable,
+        :rendering_time    => 30000,
+        :fail_silently     => false
       }
     end
   end

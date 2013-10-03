@@ -43,16 +43,12 @@ module Shrimp
     #   * zoom    - the viewport zoom factor
     #   * margin  - the margins for the pdf
     # cookies     - hash with cookies to use for rendering
-    # outfile     - optional path for the output file. a Tempfile will be 
-    #               created if not given
     #
     # Returns self
-    def initialize(url_or_file, options = {}, cookies={}, 
-                   outfile = nil)
+    def initialize(url_or_file, options = {}, cookies={})
       @source  = Source.new(url_or_file)
       @options = Shrimp.configuration.options.merge(options)
       @cookies = cookies
-      @outfile = outfile ? File.expand_path(outfile) : tmpfile
       @executable = @options[:phantomjs] || self.default_executable
       raise NoExecutableError.new unless File.exists?(@executable)
     end
@@ -61,7 +57,7 @@ module Shrimp
     #
     # Returns the stdout output of phantomjs
     def run
-      @error  = nil
+      @error = nil
       puts cmd
       @result = `/bin/bash -c "#{cmd}"`
       unless $?.exitstatus == 0
@@ -69,49 +65,59 @@ module Shrimp
         @result = nil
         raise RenderingError.new(@error) unless options[:fail_silently]
       end
-      File.read(@outfile) unless @result.nil?
     end
 
     # Public: Returns the phantom rasterize command
     def cmd
-      [@executable, SCRIPT_FILE, "'#{@source.to_s}'", @outfile, @options[:format], 
-       @options[:zoom], @options[:margin], @options[:orientation], 
-       dump_cookies, @options[:rendering_time]].join(" ")
+      args = @options.slice(*command_line_options)
+      args[:cookies] = dump_cookies
+      args[:input] = @source.to_s
+      args[:output] = @outfile.path
+      
+      arg_list = args.map {|key, value| "-#{key} '#{value}'" }
+      
+      [@executable, SCRIPT_FILE, arg_list].flatten.join(" ")
     end
 
-    # Public: renders to pdf
-    # path  - the destination path defaults to outfile
-    #
-    # Returns the contents of the pdf
-    def to_pdf(path=nil, keep_file=false)
-      @outfile = File.expand_path(path) if path
+    # Public: renders to PDF. Returns file handle to generated PDF.
+    def to_pdf
+      @options[:output_format] = "pdf"
+      @outfile = Tempfile.new(['shrimp_output', '.pdf'])
       self.run
       @outfile
     end
 
-    # Public: renders to pdf
-    # path  - the destination path defaults to outfile
-    #
-    # Returns a File Handle of the Resulting pdf
-    def to_file(path=nil)
-      self.to_pdf(path, true)
-      File.new(@outfile)
+    # Public: renders to PNG. Returns file handle to generated PNG.
+    def to_png
+      @options[:output_format] = "png"
+      @outfile = Tempfile.new(['shrimp_output', '.png'])
+      self.run
+      @outfile
+    end
+    
+    # Public: renders to HTML. Returns file handle to generated HTML.
+    def to_html
+      @options[:output_format] = "html"
+      @outfile = Tempfile.new(['shrimp_output', '.html'])
+      self.run
+      @outfile
     end
 
-    private
-    def tmpfile 
-      "#{options[:tmpdir]}/#{Digest::MD5.hexdigest((
-                             Time.now.to_i + rand(9001)).to_s)}.pdf"
+  private
+    
+    def command_line_options
+      [:format, :zoom, :margin, :orientation, :rendering_time, :output_format]
     end
 
     def dump_cookies
       host = @source.url? ? URI::parse(@source.to_s).host : "/"
       json = @cookies.inject([]) { |a, (k, v)| 
-               a.push({ :name => k, :value => v, :domain => host }); a 
-             }.to_json
-      File.open("#{options[:tmpdir]}/#{rand}.cookies", 'w') { |f| 
-        f.puts json; f 
-      }.path
+          a.push({ :name => k, :value => v, :domain => host }); a 
+        }.to_json
+      @cookies_file = Tempfile.new(["shrimp", ".cookies"])
+      @cookies_file.puts(json)
+      @cookies_file.fsync
+      @cookies_file.path
     end
   end
 end
