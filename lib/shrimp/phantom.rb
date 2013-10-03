@@ -94,19 +94,11 @@ module Shrimp
       self.run
       @outfile
     end
-    
-    # Public: renders to HTML. Returns file handle to generated HTML.
-    def to_html
-      @options[:output_format] = "html"
-      @outfile = Tempfile.new(['shrimp_output', '.html'])
-      self.run
-      @outfile
-    end
 
   private
     
     def command_line_options
-      [:format, :zoom, :margin, :orientation, :rendering_time, :output_format]
+      [:format, :zoom, :margin, :orientation, :rendering_time, :output_format, :clip_height, :html_output]
     end
 
     def dump_cookies
