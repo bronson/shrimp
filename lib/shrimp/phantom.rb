@@ -24,6 +24,8 @@ module Shrimp
   end
 
   class Phantom
+    include Dir::Tmpname
+    
     attr_accessor :source, :configuration, :outfile, :executable
     attr_reader :options, :cookies, :result, :error
     SCRIPT_FILE = File.expand_path('../rasterize.js', __FILE__)
@@ -58,8 +60,10 @@ module Shrimp
     # Returns the stdout output of phantomjs
     def run
       @error = nil
-      puts cmd
-      @result = `/bin/bash -c "#{cmd}"`
+      cmd_to_run = cmd
+      puts cmd_to_run
+      @result = `/bin/bash -c "#{cmd_to_run}"`
+      puts @result
       unless $?.exitstatus == 0
         @error  = @result
         @result = nil
@@ -72,7 +76,8 @@ module Shrimp
       args = @options.slice(*command_line_options)
       args[:cookies] = dump_cookies
       args[:input] = @source.to_s
-      args[:output] = @outfile.path
+      @outfile_path = temp_file_path('shrimp_output', ".#{@options[:output_format]}")
+      args[:output] = @outfile_path
       
       arg_list = args.map {|key, value| "-#{key} '#{value}'" }
       
@@ -82,17 +87,15 @@ module Shrimp
     # Public: renders to PDF. Returns file handle to generated PDF.
     def to_pdf
       @options[:output_format] = "pdf"
-      @outfile = Tempfile.new(['shrimp_output', '.pdf'])
       self.run
-      @outfile
+      File.open(@outfile_path)
     end
 
     # Public: renders to PNG. Returns file handle to generated PNG.
     def to_png
       @options[:output_format] = "png"
-      @outfile = Tempfile.new(['shrimp_output', '.png'])
       self.run
-      @outfile
+      File.open(@outfile_path)
     end
 
   private
@@ -111,5 +114,10 @@ module Shrimp
       @cookies_file.fsync
       @cookies_file.path
     end
+    
+    def temp_file_path(name, suffix)
+      create([name, suffix]) {|tmpname| tmpname }
+    end
+    
   end
 end
