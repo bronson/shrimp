@@ -47,14 +47,14 @@ module Shrimp
     #               created if not given
     #
     # Returns self
-    def initialize(executable, url_or_file, options = {}, cookies={}, 
+    def initialize(url_or_file, options = {}, cookies={}, 
                    outfile = nil)
       @source  = Source.new(url_or_file)
       @options = Shrimp.configuration.options.merge(options)
       @cookies = cookies
       @outfile = outfile ? File.expand_path(outfile) : tmpfile
-      @executable = executable || Phantom.default_executable
-      raise NoExecutableError.new(@executable) unless File.exists?(@executable)
+      @executable = @options[:phantomjs] || self.default_executable
+      raise NoExecutableError.new unless File.exists?(@executable)
     end
 
     # Public: Runs the phantomjs binary
@@ -85,9 +85,8 @@ module Shrimp
     # Returns the contents of the pdf
     def to_pdf(path=nil, keep_file=false)
       @outfile = File.expand_path(path) if path
-      contents = self.run
-      File.delete(@outfile) unless keep_file
-      contents
+      self.run
+      @outfile
     end
 
     # Public: renders to pdf
