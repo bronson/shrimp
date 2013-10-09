@@ -15,9 +15,9 @@ cookies = {}
 
 if args.cookies?
   try 
-    f = fs.open(cookie_file, "r")
+    f = fs.open(args.cookies, "r")
     cookies = JSON.parse(f.read())
-    fs.remove(cookie_file)
+    fs.remove(args.cookies)
   catch e
     console.log(e);
   
@@ -43,12 +43,12 @@ if args.output_format == "pdf"
     paperSize.header =
       height: args.header_height || "1cm"
       contents: phantom.callback (pageNum, numPages) ->
-        args.header.replace(/\[pageNum\]/, pageNum).replace(/\[numPages\]/, numPages)
+        fs.read(args.header).replace(/\[pageNum\]/, pageNum).replace(/\[numPages\]/, numPages)
   if args.footer?
     paperSize.footer =
       height: args.footer_height || "1cm"
       contents: phantom.callback (pageNum, numPages) ->
-        args.footer.replace(/\[pageNum\]/, pageNum).replace(/\[numPages\]/, numPages)
+        fs.read(args.footer).replace(/\[pageNum\]/, pageNum).replace(/\[numPages\]/, numPages)
   
   page.paperSize = paperSize
 

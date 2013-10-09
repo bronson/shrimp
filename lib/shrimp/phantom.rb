@@ -101,7 +101,8 @@ module Shrimp
   private
     
     def command_line_options
-      [:format, :zoom, :margin, :orientation, :rendering_time, :output_format, :clip_height, :html_output]
+      [:format, :zoom, :margin, :orientation, :rendering_time, :output_format, 
+        :clip_height, :html_output, :header, :header_height, :footer, :footer_height]
     end
 
     def dump_cookies
