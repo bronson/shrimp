@@ -58,6 +58,10 @@ page.onResourceReceived = (resource) =>
   if resource.url == args.input
     statusCode = resource.status
 
+# Don't accept gzipped responses to fix https://github.com/ariya/phantomjs/issues/10930
+page.customHeaders =
+  "Accept-Encoding": "identity"
+    
 page.open args.input, (status) =>
   if status != 'success' || (statusCode != 200 && statusCode != null)
     console.log(statusCode, 'Unable to load the address: ', args.input)
