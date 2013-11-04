@@ -1,5 +1,7 @@
 ## ChangeLog
 
+Converting to Shrimple, jettisoning a lot of code...
+
 2012-12-18: Version 0.0.2
     Improved Error handling
     Improved Readme

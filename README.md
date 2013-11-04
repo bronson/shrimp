@@ -1,23 +1,18 @@
-# Shrimp
+# Shrimple
 [![Build Status](https://travis-ci.org/adeven/shrimp.png?branch=master)](https://travis-ci.org/adeven/shrimp)
 Creates PDFs from URLs using phantomjs.
 
-Read our [blogpost](http://big-elephants.com/2012-12/pdf-rendering-with-phantomjs/) about how it works.
+A do-one-thing-well interface to PhantomJS extracted from [Shrimp](https://github.com/k1w1/shrimp).
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'shrimp'
+    gem 'shrimple', git: 'https://github.com/bronson/shrimple'
 
 And then execute:
 
     $ bundle
-
-Or install it yourself as:
-
-    $ gem install shrimp
-
 
 ### pantomjs
 
@@ -26,10 +21,10 @@ Or install it yourself as:
 ## Usage
 
 ```
-require 'shrimp'
+require 'shrimple'
 url     = 'http://www.google.com'
 options = { :margin => "1cm"}
-Shrimp::Phantom.new(url, options).to_pdf("~/output.pdf")
+Shrimple.new(url, [options...]).to_pdf("~/output.pdf")
 ```
 ## Configuration
 
@@ -64,46 +59,6 @@ Shrimp.configure do |config|
 end
 ```
 
-## Middleware
-
-Shrimp comes with a middleware that allows users to get a PDF view of any page on your site by appending .pdf to the URL.
-
-### Middleware Setup
-
-**Non-Rails Rack apps**
-
-    # in config.ru
-    require 'shrimp'
-    use Shrimp::Middleware
-
-**Rails apps**
-
-    # in application.rb(Rails3) or environment.rb(Rails2)
-    require 'shrimp'
-    config.middleware.use Shrimp::Middleware
-
-**With Shrimp options**
-
-    # options will be passed to Shrimp::Phantom.new
-    config.middleware.use Shrimp::Middleware, :margin => '0.5cm', :format => 'Letter'
-
-**With conditions to limit routes that can be generated in pdf**
-
-    # conditions can be regexps (either one or an array)
-    config.middleware.use Shrimp::Middleware, {}, :only => %r[^/public]
-    config.middleware.use Shrimp::Middleware, {}, :only => [%r[^/invoice], %r[^/public]]
-
-    # conditions can be strings (either one or an array)
-    config.middleware.use Shrimp::Middleware, {}, :only => '/public'
-    config.middleware.use Shrimp::Middleware, {}, :only => ['/invoice', '/public']
-
-    # conditions can be regexps (either one or an array)
-    config.middleware.use Shrimp::Middleware, {}, :except => [%r[^/prawn], %r[^/secret]]
-
-    # conditions can be strings (either one or an array)
-    config.middleware.use Shrimp::Middleware, {}, :except => ['/secret']
-
-
 ### Troubleshooting
 
 *  **Single thread issue:** In development environments it is common to run a
@@ -127,14 +82,10 @@ Shrimp comes with a middleware that allows users to get a PDF view of any page o
    Then to run the app `unicorn_rails -c config/unicorn.conf` (from rails_root)
   (taken from pdfkit readme: https://github.com/pdfkit/pdfkit)
 
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
 
 ## Copyright
-Shrimp is Copyright © 2012 adeven (Manuel Kniep). It is free software, and may be redistributed under the terms
-specified in the LICENSE file.
+
+Shrimp is Copyright © 2012 adeven (Manuel Kniep).
+It is free software, and may be redistributed under the terms specified in the LICENSE file. 
+
+Shrimple is Copyright © 2013 Scott Bronson and may be redistributed under the same terms.
