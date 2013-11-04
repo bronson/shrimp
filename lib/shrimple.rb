@@ -1,124 +1,71 @@
-require 'uri'
-require 'json'
-require 'digest'
+# Keeps track of options and calls the render script
 
-module Shrimp
-  class NoExecutableError < StandardError
-    def initialize(phantom_location=nil)
-      msg = "No phantomjs executable found at #{phantom_location}\n"
-      msg << ">> Please install phantomjs - http://phantomjs.org/download.html"
-      super(msg)
+# TODO: just send options as json
+# TODO: return pdf as binary string
+# TODO: restore cookie functionality.  then tests!
+
+# require 'json'
+# require 'digest'
+require 'open3'
+
+class Shrimple
+  class NoExecutableError < StandardError; end
+  class RenderingError < StandardError; end
+
+  attr_accessor :executable, :renderer, :options
+
+
+  RenderScript = File.expand_path('../render.js', __FILE__)
+  
+  def self.default_executable
+    (defined?(Bundler::GemfileError) ? `bundle exec which phantomjs` : `which phantomjs`).chomp
+  end
+
+  # Create a new render interface.
+  # options:
+  # - phantomjs: specifies the path to the phantomjs executable to use
+  # - renderer: specifies the path to the render script to use
+  def initialize options = {}
+    @executable = options.delete(:executable) || self.class.default_executable
+    File.exists?(@executable) or raise NoExecutableError.new "No Executable Error: PhantomJS executable not found at #{@executable}.\n"
+    @renderer = options.delete(:renderer) || RenderScript
+    File.exists?(@renderer) or raise NoExecutableError.new "No Executable Error: render script not found at #{@renderer}.\n"
+    @options = options
+  end
+
+  def shell *cmd
+    puts "Shrimple: running #{cmd.join(' ')}\n"
+    Open3.popen2e(*cmd) do |i,o,t|
+      i.close
+      output = o.read
+      raise RenderingError.new("Rendering Error: #{cmd.join(' ')} returned #{t.value.exitstatus}: #{output}") unless t.value.success?
     end
   end
 
-  class ImproperSourceError < StandardError
-    def initialize(msg=nil)
-      super("Improper Source: #{msg}")
-    end
+  def run src, dst, options={}
+    opts = {input: src, output: dst}.merge(@options).merge(options)
+    arg_list = opts.map {|key, value| ["-#{key}", value.to_s] }.flatten
+    shell executable, renderer, *arg_list
   end
 
-  class RenderingError < StandardError
-    def initialize(msg=nil)
-      super("Rendering Error: #{msg}")
-    end
+  def render_pdf src, dst, options={}
+    run src, dst, options.merge({output_format: 'pdf'})
   end
 
-  class Phantom
-    include Dir::Tmpname
-    
-    attr_accessor :source, :configuration, :outfile, :executable
-    attr_reader :options, :cookies, :result, :error
-    SCRIPT_FILE = File.expand_path('../rasterize.js', __FILE__)
-    
-    def self.default_executable
-      (defined?(Bundler::GemfileError) ?  
-       `bundle exec which phantomjs` : 
-       `which phantomjs`).chomp
-    end
+  def render_png src, dst, option={}
+    run src, dst, options.merge({output_format: 'png'})
+  end
 
-    # Public: initializes a new Phantom Object
-    #
-    # url_or_file - The url of the html document to render
-    # options     - a hash with options for rendering
-    #   * format  - the paper format for the output eg: "5in*7.5in", 
-    #               "10cm*20cm", "A4", "Letter"
-    #   * zoom    - the viewport zoom factor
-    #   * margin  - the margins for the pdf
-    # cookies     - hash with cookies to use for rendering
-    #
-    # Returns self
-    def initialize(url_or_file, options = {}, cookies={})
-      @source  = Source.new(url_or_file)
-      @options = Shrimp.configuration.options.merge(options)
-      @cookies = cookies
-      @executable = @options[:phantomjs] || self.default_executable
-      raise NoExecutableError.new unless File.exists?(@executable)
-    end
-
-    # Public: Runs the phantomjs binary
-    #
-    # Returns the stdout output of phantomjs
-    def run
-      @error = nil
-      cmd_to_run = cmd
-      puts cmd_to_run
-      @result = `/bin/bash -c "#{cmd_to_run}"`
-      puts @result
-      unless $?.exitstatus == 0
-        @error  = @result
-        @result = nil
-        raise RenderingError.new(@error) unless options[:fail_silently]
-      end
-    end
-
-    # Public: Returns the phantom rasterize command
-    def cmd
-      args = @options.slice(*command_line_options)
-      args[:cookies] = dump_cookies
-      args[:input] = @source.to_s
-      @outfile_path = temp_file_path('shrimp_output', ".#{@options[:output_format]}")
-      args[:output] = @outfile_path
-      
-      arg_list = args.map {|key, value| "-#{key} '#{value}'" }
-      
-      [@executable, SCRIPT_FILE, arg_list].flatten.join(" ")
-    end
-
-    # Public: renders to PDF. Returns file handle to generated PDF.
-    def to_pdf
-      @options[:output_format] = "pdf"
-      self.run
-      File.open(@outfile_path)
-    end
-
-    # Public: renders to PNG. Returns file handle to generated PNG.
-    def to_png
-      @options[:output_format] = "png"
-      self.run
-      File.open(@outfile_path)
-    end
-
-  private
-    
-    def command_line_options
-      [:format, :zoom, :margin, :orientation, :rendering_time, :output_format, 
-        :clip_height, :html_output, :header, :header_height, :footer, :footer_height]
-    end
-
-    def dump_cookies
-      host = @source.url? ? URI::parse(@source.to_s).host : "/"
-      json = @cookies.inject([]) { |a, (k, v)| 
-          a.push({ :name => k, :value => v, :domain => host }); a 
-        }.to_json
-      @cookies_file = Tempfile.new(["shrimp", ".cookies"])
-      @cookies_file.puts(json)
-      @cookies_file.fsync
-      @cookies_file.path
-    end
-    
-    def temp_file_path(name, suffix)
-      create([name, suffix]) {|tmpname| tmpname }
-    end
-    
+private
+  
+  def dump_cookies
+    host = @source.url? ? URI::parse(@source.to_s).host : "/"
+    json = @cookies.inject([]) { |a, (k, v)| 
+        a.push({ :name => k, :value => v, :domain => host }); a 
+      }.to_json
+    @cookies_file = Tempfile.new(["shrimp", ".cookies"])
+    @cookies_file.puts(json)
+    @cookies_file.fsync
+    @cookies_file.path
   end
 end

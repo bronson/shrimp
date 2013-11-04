@@ -1,5 +1,5 @@
 # Shrimple
-[![Build Status](https://travis-ci.org/adeven/shrimp.png?branch=master)](https://travis-ci.org/adeven/shrimp)
+
 Creates PDFs from URLs using phantomjs.
 
 A do-one-thing-well interface to PhantomJS extracted from [Shrimp](https://github.com/k1w1/shrimp).
