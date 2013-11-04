@@ -1,5 +1,3 @@
-#encoding: UTF-8
-
 require File.dirname(File.expand_path(__FILE__)) + '/../lib/shrimple'
 
 def valid_pdf(io)
