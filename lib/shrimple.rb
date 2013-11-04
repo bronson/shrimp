@@ -26,15 +26,18 @@ class Shrimple
   # - phantomjs: specifies the path to the phantomjs executable to use
   # - renderer: specifies the path to the render script to use
   def initialize options = {}
+    defaults = {
+      format: 'Letter'
+    }
+
     @executable = options.delete(:executable) || self.class.default_executable
     File.exists?(@executable) or raise NoExecutableError.new "No Executable Error: PhantomJS executable not found at #{@executable}.\n"
     @renderer = options.delete(:renderer) || RenderScript
     File.exists?(@renderer) or raise NoExecutableError.new "No Executable Error: render script not found at #{@renderer}.\n"
-    @options = options
+    @options = defaults.merge(options)
   end
 
   def shell *cmd
-    puts "Shrimple: running #{cmd.join(' ')}\n"
     Open3.popen2e(*cmd) do |i,o,t|
       i.close
       output = o.read

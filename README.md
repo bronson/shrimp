@@ -37,6 +37,9 @@ There are a number of ways of passing configuration options.
   s.render_pdf(src, dst, output_format: 'gif')  # or supply right to the renderer
 ```
 
+Note that src must be a URL.  Use `file:///Users/bronson/shrimple/spec/test_file.html`
+to specify a file on the local filesystem.  dst is just a local pathname.
+
 
 ### Troubleshooting
 
