@@ -37,6 +37,8 @@ class Shrimple
     @options = defaults.merge(options)
   end
 
+  # launches a command (bit of a misnomer since it goes out of its way to
+  # avoid shells and all their security risks)
   def shell *cmd
     Open3.popen2e(*cmd) do |i,o,t|
       i.close
@@ -45,10 +47,16 @@ class Shrimple
     end
   end
 
-  def run src, dst, options={}
+  # returns the exact command line that will be run
+  def command src, dst, options={}
     opts = {input: src, output: dst}.merge(@options).merge(options)
     arg_list = opts.map {|key, value| ["-#{key}", value.to_s] }.flatten
-    shell executable, renderer, *arg_list
+    [executable, renderer, *arg_list]
+  end
+
+  # generates and runs a phantomjs command
+  def run src, dst, options={}
+    shell *command(src, dst, options)
   end
 
   def render_pdf src, dst, options={}

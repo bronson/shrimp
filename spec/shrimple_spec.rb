@@ -13,6 +13,11 @@ def testfile
   File.expand_path('../test_file.html', __FILE__)
 end
 
+def prepare_file outfile
+  File.delete(outfile) if File.exists?(outfile)
+  outfile
+end
+
 
 # to test: a render.js that doesn't compile
 # to test: PhantomJS failures
@@ -46,13 +51,17 @@ describe Shrimple do
   end
 
   it "renders a pdf" do
-    outfile = '/tmp/shrimple-test-output.pdf'
-    File.delete(outfile) if File.exists?(outfile)
+    outfile = prepare_file('/tmp/shrimple-test-output.pdf')
     s = Shrimple.new
     s.render_pdf "file://#{testfile}", outfile
     expect(File.exists? outfile).to eq true
     expect(valid_pdf(File.new(outfile))).to eq true
   end
 
-  it "renders a png"
+  it "renders a png" do
+    outfile = prepare_file('/tmp/shrimple-test-output.png')
+    s = Shrimple.new
+    s.render_png "file://#{testfile}", outfile
+    expect(File.exists? outfile).to eq true
+  end
 end
