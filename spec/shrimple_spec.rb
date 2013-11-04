@@ -15,6 +15,8 @@ def testfile
   File.expand_path('../test_file.html', __FILE__)
 end
 
+
+# to test: a render.js that doesn't compile
 # to test: PhantomJS failures
 
 describe Shrimple do
@@ -41,19 +43,18 @@ describe Shrimple do
     s = Shrimple.new(executable: '/bin/sh', renderer: testfile, orientation: 'landscape')
     s.options['render_time'] = 55000
     s.should_receive(:shell).with('/bin/sh', testfile, '-input', 'infile', '-output', 'outfile',
-      '-orientation', 'landscape', '-render_time', '55000', '-zoom', '0.25' )
-    s.run 'infile', 'outfile', zoom: 0.25
+      '-orientation', 'landscape', '-render_time', '55000', '-zoom', '0.25', '-output_format', 'pdf' )
+    s.render_pdf 'infile', 'outfile', zoom: 0.25
   end
 
   it "renders a pdf" do
     outfile = '/tmp/shrimple-test-output.pdf'
     File.delete(outfile) if File.exists?(outfile)
     s = Shrimple.new
-    s.run testfile, outfile
+    s.render_pdf testfile, outfile
     expect(File.exists? outfile).to eq true
     expect(valid_pdf(File.new(outfile))).to eq true
   end
 
-  it "renders a png" do
-  end
+  it "renders a png"
 end

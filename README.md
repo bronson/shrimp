@@ -1,8 +1,8 @@
 # Shrimple
 
-Creates PDFs from URLs using phantomjs.
+Use PhantomJS to generate PDFs from URLs or local files.
+This is meant to be a do-one-thing-well interface extracted from [Shrimp](https://github.com/k1w1/shrimp).
 
-A do-one-thing-well interface to PhantomJS extracted from [Shrimp](https://github.com/k1w1/shrimp).
 
 ## Installation
 
@@ -14,50 +14,29 @@ And then execute:
 
     $ bundle
 
-### pantomjs
+### PhantomJS
 
-    See http://phantomjs.org/download.html on how to install phatomjs
+    See http://phantomjs.org/download.html
+
 
 ## Usage
 
-```
+```ruby
 require 'shrimple'
-url     = 'http://www.google.com'
-options = { :margin => "1cm"}
-Shrimple.new(url, [options...]).to_pdf("~/output.pdf")
+Shrimple.new.render_pdf('http://be.com', '/tmp/output.pdf', margin: '1cm')
 ```
+
+
 ## Configuration
 
+There are a number of ways of passing configuration options.
+
+```ruby
+  s = Shrimple.new(orientation: 'landscape')    # pass options to the constructor
+  s.options[:zoom] = 0.25    # set an option any time after the object is created
+  s.render_pdf(src, dst, output_format: 'gif')  # or supply right to the renderer
 ```
-Shrimp.configure do |config|
 
-  # The path to the phantomjs executable
-  # defaults to `where phantomjs`
-  # config.phantomjs = '/usr/local/bin/phantomjs'
-
-  # the default pdf output format
-  # e.g. "5in*7.5in", "10cm*20cm", "A4", "Letter"
-  # config.format           = 'Letter'
-
-  # the default margin
-  # config.margin           = '1cm'
-
-  # the zoom factor
-  # config.zoom             = 1
-
-  # the page orientation 'portrait' or 'landscape'
-  # config.orientation      = 'portrait'
-
-  # a temporary dir used to store tempfiles
-  # config.tmpdir           = Dir.tmpdir
-
-  # whether or not exceptions should explicitly be raised
-  # config.fail_silently    = false
-
-  # the maximum time spent rendering a pdf
-  # config.rendering_time   = 30000
-end
-```
 
 ### Troubleshooting
 
@@ -85,7 +64,7 @@ end
 
 ## Copyright
 
-Shrimp is Copyright © 2012 adeven (Manuel Kniep).
+Shrimp, the original project, is Copyright © 2012 adeven (Manuel Kniep).
 It is free software, and may be redistributed under the terms specified in the LICENSE file. 
 
-Shrimple is Copyright © 2013 Scott Bronson and may be redistributed under the same terms.
+Shrimple is also Copyright © 2013 Scott Bronson and may be redistributed under the same terms.
