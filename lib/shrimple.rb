@@ -1,7 +1,8 @@
 # Keeps track of options and calls the render script
 
+# TODO: a background option that uses Prcoess.spawn?
 # TODO: just send options as json
-# TODO: return pdf as binary string
+# TODO: return pdf as binary string instead of a file
 # TODO: restore cookie functionality.  then tests!
 
 # require 'json'

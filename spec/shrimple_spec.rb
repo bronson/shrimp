@@ -1,21 +1,7 @@
 require File.dirname(File.expand_path(__FILE__)) + '/../lib/shrimple'
 
-def valid_pdf(io)
-  case io
-    when File
-      io.read[0...4] == "%PDF"
-    when String
-      io[0...4] == "%PDF" || File.open(io).read[0...4] == "%PDF"
-  end
-end
-
 def testfile
   File.expand_path('../test_file.html', __FILE__)
-end
-
-def prepare_file outfile
-  File.delete(outfile) if File.exists?(outfile)
-  outfile
 end
 
 
@@ -48,20 +34,5 @@ describe Shrimple do
     s.should_receive(:execute).with('/bin/sh', testfile, '-input', 'infile', '-output', 'outfile', '-format', 'A4',
       '-orientation', 'landscape', '-render_time', '55000', '-zoom', '0.25', '-output_format', 'pdf' )
     s.render_pdf 'infile', 'outfile', zoom: 0.25
-  end
-
-  it "renders a pdf" do
-    outfile = prepare_file('/tmp/shrimple-test-output.pdf')
-    s = Shrimple.new
-    s.render_pdf "file://#{testfile}", outfile
-    expect(File.exists? outfile).to eq true
-    expect(valid_pdf(File.new(outfile))).to eq true
-  end
-
-  it "renders a png" do
-    outfile = prepare_file('/tmp/shrimple-test-output.png')
-    s = Shrimple.new
-    s.render_png "file://#{testfile}", outfile
-    expect(File.exists? outfile).to eq true
   end
 end
