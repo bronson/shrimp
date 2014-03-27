@@ -37,9 +37,7 @@ class Shrimple
     @options = defaults.merge(options)
   end
 
-  # launches a command (bit of a misnomer since it goes out of its way to
-  # avoid shells and all their security risks)
-  def shell *cmd
+  def execute *cmd
     Open3.popen2e(*cmd) do |i,o,t|
       i.close
       output = o.read
@@ -56,7 +54,7 @@ class Shrimple
 
   # generates and runs a phantomjs command
   def run src, dst, options={}
-    shell *command(src, dst, options)
+    execute *command(src, dst, options)
   end
 
   def render_pdf src, dst, options={}
