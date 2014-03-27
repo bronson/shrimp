@@ -27,7 +27,7 @@ class Shrimple
   # - renderer: specifies the path to the render script to use
   def initialize options = {}
     defaults = {
-      format: 'Letter'
+      format: 'A4'
     }
 
     @executable = options.delete(:executable) || self.class.default_executable

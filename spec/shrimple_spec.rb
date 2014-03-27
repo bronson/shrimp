@@ -38,14 +38,14 @@ describe Shrimple do
 
   it "calls the right basic command line" do
     s = Shrimple.new
-    s.should_receive(:shell).with(s.executable, s.renderer, '-input', 'infile', '-output', 'outfile', '-format', 'Letter')
+    s.should_receive(:shell).with(s.executable, s.renderer, '-input', 'infile', '-output', 'outfile', '-format', 'A4')
     s.run 'infile', 'outfile'
   end
 
   it "passes options" do
     s = Shrimple.new(executable: '/bin/sh', renderer: testfile, orientation: 'landscape')
     s.options['render_time'] = 55000
-    s.should_receive(:shell).with('/bin/sh', testfile, '-input', 'infile', '-output', 'outfile', '-format', 'Letter',
+    s.should_receive(:shell).with('/bin/sh', testfile, '-input', 'infile', '-output', 'outfile', '-format', 'A4',
       '-orientation', 'landscape', '-render_time', '55000', '-zoom', '0.25', '-output_format', 'pdf' )
     s.render_pdf 'infile', 'outfile', zoom: 0.25
   end
