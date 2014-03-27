@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Shrimple do
   it "automatically finds the executable and renderer" do
-    s =  Shrimple.new
+    s = Shrimple.new
     expect(File.executable? s.executable).to be true
     expect(File.exists? s.renderer).to be true
   end
@@ -16,15 +16,15 @@ describe Shrimple do
 
   it "calls the right basic command line" do
     s = Shrimple.new
-    s.should_receive(:execute).with(s.executable, s.renderer, '-input', 'infile', '-output', 'outfile', '-format', 'A4')
-    s.run 'infile', 'outfile'
+    s.should_receive(:execute).with([s.executable, s.renderer, '-input', 'infile', '-output', 'outfile', '-format', 'A4'], nil)
+    s.render 'infile', 'outfile'
   end
 
   it "passes options" do
     s = Shrimple.new(executable: '/bin/sh', renderer: example_html, orientation: 'landscape')
     s.options['render_time'] = 55000
-    s.should_receive(:execute).with('/bin/sh', example_html, '-input', 'infile', '-output', 'outfile', '-format', 'A4',
-      '-orientation', 'landscape', '-render_time', '55000', '-zoom', '0.25', '-output_format', 'pdf' )
+    s.should_receive(:execute).with(['/bin/sh', example_html, '-input', 'infile', '-output', 'outfile', '-format', 'A4',
+      '-orientation', 'landscape', '-render_time', '55000', '-zoom', '0.25', '-output_format', 'pdf'], nil)
     s.render_pdf 'infile', 'outfile', zoom: 0.25
   end
 end

@@ -4,6 +4,7 @@
 # TODO: just send options as json
 # TODO: return pdf as binary string instead of a file
 # TODO: restore cookie functionality.  then tests!
+# TODO: documentation!
 
 # require 'json'
 # require 'digest'
@@ -38,7 +39,23 @@ class Shrimple
     @options = defaults.merge(options)
   end
 
-  def execute *cmd
+  def render_pdf src, dst, options={}
+    render src, dst, options.merge(output_format: 'pdf')
+  end
+
+  def render_png src, dst, option={}
+    render src, dst, options.merge(output_format: 'png')
+  end
+
+  # generates and runs a phantomjs command
+  def render src, dst, options={}
+    cmdline = command(src, dst, options)
+    execute(cmdline, options[:background])
+  end
+
+# semi-private
+
+  def execute cmd, background=nil
     Open3.popen2e(*cmd) do |i,o,t|
       i.close
       output = o.read
@@ -46,24 +63,14 @@ class Shrimple
     end
   end
 
-  # returns the exact command line that will be run
-  def command src, dst, options={}
+  # returns the command line that will invoke phantomjs
+  def command src, dst, options
+    options = options.dup
+    options.delete(:background)  # remove runtime options
+
     opts = {input: src, output: dst}.merge(@options).merge(options)
     arg_list = opts.map {|key, value| ["-#{key}", value.to_s] }.flatten
     [executable, renderer, *arg_list]
-  end
-
-  # generates and runs a phantomjs command
-  def run src, dst, options={}
-    execute *command(src, dst, options)
-  end
-
-  def render_pdf src, dst, options={}
-    run src, dst, options.merge({output_format: 'pdf'})
-  end
-
-  def render_png src, dst, option={}
-    run src, dst, options.merge({output_format: 'png'})
   end
 
 private
