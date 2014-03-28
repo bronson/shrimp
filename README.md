@@ -26,10 +26,10 @@ require 'shrimple'
 Shrimple.new.render_pdf('http://be.com', '/tmp/output.pdf', margin: '1cm')
 ```
 
-
 ## Configuration
 
-There are a number of ways of passing configuration options.
+There are a number of ways of passing configuration options.  Options specified
+later override those specified earlier.
 
 ```ruby
   s = Shrimple.new(orientation: 'landscape')    # pass options to the constructor
@@ -37,37 +37,31 @@ There are a number of ways of passing configuration options.
   s.render_pdf(src, dst, output_format: 'gif')  # or supply right to the renderer
 ```
 
-Note that src must be a URL.  Use `file:///Users/bronson/shrimple/spec/test_file.html`
-to specify a file on the local filesystem.  dst is just a local pathname.
+Note that src must be a URL.  Use `file://test_file.html`
+to specify a file on the local filesystem.
 
 
-### Troubleshooting
+### Options
 
-*  **Single thread issue:** In development environments it is common to run a
-   single server process. This can cause issues because rendering your pdf
-   requires phantomjs to hit your server again (for images, js, css).
-   This is because the resource requests will get blocked by the initial
-   request and the initial request will be waiting on the resource
-   requests causing a deadlock.
+- background: if true, the PhantomJS process will be spawned in the background
+  and Ruby execution will resume immediatley.
 
-   This is usually not an issue in a production environment. To get
-   around this issue you may want to run a server with multiple workers
-   like Passenger or try to embed your resources within your HTML to
-   avoid extra HTTP requests.
-   
-   Example solution (rails / bundler), add unicorn to the development 
-   group in your Gemfile `gem 'unicorn'` then run `bundle`. Next, add a 
-   file `config/unicorn.conf` with
-   
-        worker_processes 3
-   
-   Then to run the app `unicorn_rails -c config/unicorn.conf` (from rails_root)
-  (taken from pdfkit readme: https://github.com/pdfkit/pdfkit)
+- execuatable: a path to the phantomjs exectuable to use.  Shrimple searches
+  pretty hard for installed phantomjs executables so there's usually no need
+  to specify this.
+
+- renderer: the render.js script to pass to Phantom.  Probably only useful for testing.
+
+
+## Changes to Shrimp
+
+- Added background mode
+- Better error handling
 
 
 ## Copyright
 
 Shrimp, the original project, is Copyright © 2012 adeven (Manuel Kniep).
-It is free software, and may be redistributed under the terms specified in the LICENSE file. 
+It is free software, and may be redistributed under the MIT License (see LICENSE.txt).
 
 Shrimple is also Copyright © 2013 Scott Bronson and may be redistributed under the same terms.

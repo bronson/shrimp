@@ -1,14 +1,11 @@
 # Keeps track of options and calls the render script
 
-# TODO: a background option that uses Prcoess.spawn?
 # TODO: just send options as json
 # TODO: return pdf as binary string instead of a file
 # TODO: restore cookie functionality.  then tests!
 # TODO: documentation!
 
-# require 'json'
-# require 'digest'
-require 'open3'
+require 'tempfile'
 
 class Shrimple
   class NoExecutableError < StandardError; end
@@ -26,7 +23,7 @@ class Shrimple
   # Create a new render interface.
   # options:
   # - phantomjs: specifies the path to the phantomjs executable to use
-  # - renderer: specifies the path to the render script to use
+  # - renderer: specifies the path to the render script to use (only useful for testing)
   def initialize options = {}
     defaults = {
       format: 'A4'
@@ -50,25 +47,26 @@ class Shrimple
   # generates and runs a phantomjs command
   def render src, dst, options={}
     cmdline = command(src, dst, options)
-    execute(cmdline, options[:background])
+    execute(cmdline, options)
   end
 
 # semi-private
 
-  def execute cmd, background=nil
-    Open3.popen2e(*cmd) do |i,o,t|
-      i.close
-      output = o.read
-      raise RenderingError.new("Rendering Error: #{cmd.join(' ')} returned #{t.value.exitstatus}: #{output}") unless t.value.success?
-    end
+  def execute cmd, options
+    logfile = options[:logfile] || Tempfile.new('shrimple.log')
+    pid = spawn(*cmd, out: logfile.path, err: :out)
+    phantom = Shrimple::Phantom.new(logfile, pid)
+    return options[:background] ? phantom.detach : phantom.wait
   end
 
   # returns the command line that will invoke phantomjs
   def command src, dst, options
-    options = options.dup
-    options.delete(:background)  # remove runtime options
-
     opts = {input: src, output: dst}.merge(@options).merge(options)
+
+    # remove options consumed by the execute method
+    opts.delete(:background)
+    opts.delete(:logfile)
+
     arg_list = opts.map {|key, value| ["-#{key}", value.to_s] }.flatten
     [executable, renderer, *arg_list]
   end
@@ -84,5 +82,45 @@ private
     @cookies_file.puts(json)
     @cookies_file.fsync
     @cookies_file.path
+  end
+end
+
+
+class Shrimple::Phantom
+  attr_accessor :outfile, :pid
+
+  def initialize outfile, pid
+    @outfile,@pid = outfile,pid
+  end
+
+  def cleanup
+    outfile.unlink
+  end
+
+  # returns all the output produced by the PhantomJS process.
+  def output
+    outfile.rewind
+    outfile.read
+  end
+
+  # detach returns immediately, requiring the caller to collect the result and then
+  # call cleanup (or a tempfile will be leaked).  Called when the background option is true.
+  def deatach
+    Process.detach(pid)
+    return self
+  end
+
+  # wait blocks until PhantomJS is done, then cleans up.
+  # It raises an error if Phantom failed.  Called when the background option is false.
+  def wait
+    Process.wait(pid)
+    outstr = output
+    cleanup
+
+    unless $?.success?
+      raise RenderingError.new("Rendering Error: #{cmd.join(' ')} returned #{$?.exitstatus}: #{outstr}")
+    end
+
+    true # no better return value?
   end
 end
