@@ -18,8 +18,9 @@ def prepare_file outfile
 end
 
 
-# to test: a render.js that doesn't compile
-# to test: PhantomJS failures
+# TODO: test background mode
+# TODO: test a render.js that doesn't compile
+# TODO: test PhantomJS failures
 
 describe Shrimple do
   it "renders a pdf" do

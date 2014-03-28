@@ -1,9 +1,9 @@
 # Keeps track of options and calls the render script
 
-# TODO: just send options as json
-# TODO: return pdf as binary string instead of a file
-# TODO: restore cookie functionality.  then tests!
+# TODO: just send options as json on stdin
+# TODO: return pdf as binary string instead of a file?
 # TODO: documentation!
+# TODO: restore cookie functionality.
 
 require 'tempfile'
 
@@ -20,10 +20,6 @@ class Shrimple
     (defined?(Bundler::GemfileError) ? `bundle exec which phantomjs` : `which phantomjs`).chomp
   end
 
-  # Create a new render interface.
-  # options:
-  # - phantomjs: specifies the path to the phantomjs executable to use
-  # - renderer: specifies the path to the render script to use (only useful for testing)
   def initialize options = {}
     defaults = {
       format: 'A4'
@@ -69,19 +65,6 @@ class Shrimple
 
     arg_list = opts.map {|key, value| ["-#{key}", value.to_s] }.flatten
     [executable, renderer, *arg_list]
-  end
-
-private
-  
-  def dump_cookies
-    host = @source.url? ? URI::parse(@source.to_s).host : "/"
-    json = @cookies.inject([]) { |a, (k, v)| 
-        a.push({ :name => k, :value => v, :domain => host }); a 
-      }.to_json
-    @cookies_file = Tempfile.new(["shrimp", ".cookies"])
-    @cookies_file.puts(json)
-    @cookies_file.fsync
-    @cookies_file.path
   end
 end
 
