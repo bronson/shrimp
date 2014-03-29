@@ -3,6 +3,9 @@ require 'spec_helper'
 # we use timing to determine if reads blocked or not.  this might be
 # an issue on heavily loaded machines.   is there a better way?
 
+# run this to ensure there are no deadlock / process synchronization problems:
+#    while rspec spec/shrimple_process_spec.rb ; do echo -n ; done
+
 describe Shrimple::Process do
   let(:chout) { StringIO.new }
   let(:cherr) { StringIO.new }

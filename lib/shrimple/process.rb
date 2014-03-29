@@ -9,7 +9,8 @@ class Shrimple
   class Process
     @@processes = {}
 
-    # runs cmd, passes stdin, and waits for all stdout or stderr.
+    # runs cmd, passes instr on its stdin, and fills outio and
+    # errio with the command's output.
     def initialize cmd, instr, outio, errio
       @chin, @chout, @cherr, @child = Open3.popen3(*cmd)
       @chout.binmode
@@ -25,8 +26,11 @@ class Shrimple
       begin
         @chin.write(instr);
         @chin.close_write
-      rescue IOError
+      # rescue IOError
         # chin was closed
+      rescue Errno::EPIPE
+        # child was killed
+        @chin.close_write
       end
     end
 
@@ -36,10 +40,11 @@ class Shrimple
         # randomly chosen buffer size
         loop { file.write(io.readpartial(256*1024)) }
       rescue EOFError
-        io.close_read
-      rescue IOError
-        # io is already closed
+        # not an error
+      rescue Errno::EPIPE
+        # child was killed
       ensure
+        io.close_read
         file.close
       end
     end
@@ -49,12 +54,11 @@ class Shrimple
       @chout.closed? && @cherr.closed? && @chin.closed?
     end
 
-    # kills the rendering process and closes the streams
-    def cancel
+    # Terminates the rendering process and closes the streams.
+    # Pass the "KILL" signal to kill the Phantom process hard.
+    def cancel signal="TERM"
       # IOError gets thrown if stream is already closed
-      @chin.close_write rescue IOError
-      @chout.close_read rescue IOError
-      @cherr.close_read rescue IOError
+      ::Process.kill(signal, @child.pid)
       wait_for_threads  # ensure threads are finished before returning so all files are closed
     end
 
