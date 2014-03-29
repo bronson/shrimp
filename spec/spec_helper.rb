@@ -5,3 +5,12 @@ require File.dirname(File.expand_path(__FILE__)) + '/../lib/shrimple'
 def example_html
   File.expand_path('../test_file.html', __FILE__)
 end
+
+# Returns the number of seconds the block took to execute
+# (is there no built-in way to do this??)
+def time &block
+ start = Time.now
+ result = block.call
+ finish = Time.now
+ finish - start
+end
