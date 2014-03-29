@@ -1,109 +1,106 @@
-# Keeps track of options and calls the render script
+# Keeps track of options and calls phantoimjs to run the render script.
 
-# TODO: just send options as json on stdin
-# TODO: return pdf as binary string instead of a file?
+# TODO: clean up helpers
+# TODO: return pdf/png/etc as binary string instead of a file?
+# TODO: support for renderBase64?
+# TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
+# TODO: include lots of info about page load in logfile
 # TODO: documentation!
-# TODO: restore cookie functionality.
 
-require 'tempfile'
+require 'hashie/mash'
+require 'shrimple/process'
+require 'shrimple/default_config'
+
 
 class Shrimple
   class NoExecutableError < StandardError; end
   class RenderingError < StandardError; end
 
-  attr_accessor :executable, :renderer, :options
+
+  attr_accessor :options
+
+  def method_missing name, *args, &block
+    options.send(name, *args, &block)
+  end
 
 
-  RenderScript = File.expand_path('../render.js', __FILE__)
+  def self.default_renderer
+    File.expand_path('../render.js', __FILE__)
+  end
   
   def self.default_executable
     (defined?(Bundler::GemfileError) ? `bundle exec which phantomjs` : `which phantomjs`).chomp
   end
 
-  def initialize options = {}
+
+
+  def initialize opts={}
+    @options = Hashie::Mash.new(Shrimple::DefaultConfig)
+    @options.deep_merge!(opts)
+    self.executable ||= self.class.default_executable
+    self.renderer ||= self.class.default_renderer
+  end
+
+
+  def render_pdf src, dst, opts={}
     defaults = {
-      format: 'A4'
+      output_format: 'pdf',
+      paperSize: Shrimple::DefaultPageSize
     }
 
-    @executable = options.delete(:executable) || self.class.default_executable
-    File.exists?(@executable) or raise NoExecutableError.new "No Executable Error: PhantomJS executable not found at #{@executable}.\n"
-    @renderer = options.delete(:renderer) || RenderScript
-    File.exists?(@renderer) or raise NoExecutableError.new "No Executable Error: render script not found at #{@renderer}.\n"
-    @options = defaults.merge(options)
+    render src, dst, Hashie::Mash.new(defaults).deep_merge!(opts)
   end
 
-  def render_pdf src, dst, options={}
-    render src, dst, options.merge(output_format: 'pdf')
+  def render_png src, dst, opts={}
+    defaults = {
+      output_format: 'png',
+      paperSize: Shrimple::DefaultImageSize
+    }
+
+    render src, dst, Hashie::Mash.new(defaults).deep_merge!(opts)
   end
 
-  def render_png src, dst, option={}
-    render src, dst, options.merge(output_format: 'png')
+  def render_jpeg src, dst, opts={}
+    defaults = {
+      output_format: 'jpeg',
+      paperSize: Shrimple::DefaultImageSize
+    }
+
+    render src, dst, Hashie::Mash.new(defaults).deep_merge!(opts)
   end
 
-  # generates and runs a phantomjs command
-  def render src, dst, options={}
-    cmdline = command(src, dst, options)
-    execute(cmdline, options)
+  def render_gif src, dst, opts={}
+    defaults = {
+      output_format: 'gif',
+      paperSize: Shrimple::DefaultImageSize
+    }
+
+    render src, dst, Hashie::Mash.new(defaults).deep_merge!(opts)
   end
 
-# semi-private
-
-  def execute cmd, options
-    logfile = options[:logfile] || Tempfile.new('shrimple.log')
-    pid = spawn(*cmd, out: logfile.path, err: :out)
-    phantom = Shrimple::Phantom.new(logfile, pid)
-    return options[:background] ? phantom.detach : phantom.wait
+  def render src, dst, opts={}
+    self.class.execute options.deep_merge(opts).deep_merge!(input: src, output: dst)
   end
 
-  # returns the command line that will invoke phantomjs
-  def command src, dst, options
-    opts = {input: src, output: dst}.merge(@options).merge(options)
 
-    # remove options consumed by the execute method
-    opts.delete(:background)
-    opts.delete(:logfile)
+  # opts contains the full list of options so it's already merged with self.options.
+  # it might be overwritten so, if you care, dup it before calling this function.
+  def self.execute opts
+    File.exists?(opts.executable) or raise NoExecutableError.new "PhantomJS executable not found at #{executable}.\n"
+    File.exists?(opts.renderer) or raise NoExecutableError.new "PhantomJS render script not found at #{renderer}.\n"
 
-    arg_list = opts.map {|key, value| ["-#{key}", value.to_s] }.flatten
-    [executable, renderer, *arg_list]
-  end
-end
+    opts.logfile ||= Tempfile.new("#{opts.output}.log").path
 
+    puts "LOGFILE: #{opts.logfile}"
 
-class Shrimple::Phantom
-  attr_accessor :outfile, :pid
+    config = Tempfile.new(opts.output + '.config')
+    config.write(opts.config.to_json)
+    config.close
 
-  def initialize outfile, pid
-    @outfile,@pid = outfile,pid
-  end
-
-  def cleanup
-    outfile.unlink
-  end
-
-  # returns all the output produced by the PhantomJS process.
-  def output
-    outfile.rewind
-    outfile.read
-  end
-
-  # detach returns immediately, requiring the caller to collect the result and then
-  # call cleanup (or a tempfile will be leaked).  Called when the background option is true.
-  def deatach
-    Process.detach(pid)
-    return self
-  end
-
-  # wait blocks until PhantomJS is done, then cleans up.
-  # It raises an error if Phantom failed.  Called when the background option is false.
-  def wait
-    Process.wait(pid)
-    outstr = output
-    cleanup
-
-    unless $?.success?
-      raise RenderingError.new("Rendering Error: #{cmd.join(' ')} returned #{$?.exitstatus}: #{outstr}")
+    pid = IO.popen([opts.executable, "--config=#{config.path}", opts.renderer], out: opts.logfile, err: :out) do |child|
+      child.write(opts.to_json)
     end
-
-    true # no better return value?
+    phantom = Shrimple::Process.new(logfile, configfile, pid)
+    return options[:background] ? phantom.detach : phantom.wait
   end
 end

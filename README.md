@@ -1,7 +1,8 @@
 # Shrimple
 
 Use PhantomJS to generate PDFs from URLs or local files.
-This is meant to be a do-one-thing-well interface extracted from [Shrimp](https://github.com/k1w1/shrimp).
+This is meant to be a small, transparent, do-one-thing-well PhantomJS interface.
+It was extracted from [Shrimp](https://github.com/k1w1/shrimp).
 
 
 ## Installation
@@ -26,9 +27,10 @@ require 'shrimple'
 Shrimple.new.render_pdf('http://be.com', '/tmp/output.pdf', margin: '1cm')
 ```
 
+
 ## Configuration
 
-There are a number of ways of passing configuration options.  Options specified
+Fairly t  Options specified
 later override those specified earlier.
 
 ```ruby
@@ -52,11 +54,16 @@ to specify a file on the local filesystem.
 
 - renderer: the render.js script to pass to Phantom.  Probably only useful for testing.
 
+Plus all the PhantomJS command-line options, in JSON notation (`proxyType` instead of `--proxy-type`): 
+https://github.com/ariya/phantomjs/wiki/API-Reference#command-line-options
+
 
 ## Changes to Shrimp
 
-- Added background mode
-- Better error handling
+- Added background mode (even works in JRuby >1.7.4).
+- Allows configuring pretty much anything: proxies, userName/password, scrollPosition, jpeg quality, etc.
+- Prevents shell attacks by passing all options over pipes as JSON.
+- Better error handling.
 
 
 ## Copyright

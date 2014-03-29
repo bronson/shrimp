@@ -16,16 +16,14 @@ describe Shrimple do
 
   it "calls the right basic command line" do
     s = Shrimple.new
-    s.should_receive(:execute).with([s.executable, s.renderer, '-input', 'infile', '-output', 'outfile', '-format', 'A4'], {})
+    expect(s).to receive(:execute).once do |opts|
+      expect(opts.to_hash).to eq({'input' => 'infile', 'output' => 'outfile'})
+    end
     s.render 'infile', 'outfile'
   end
 
   it "passes options" do
     s = Shrimple.new(executable: '/bin/sh', renderer: example_html, orientation: 'landscape')
-    s.options['render_time'] = 55000
-    s.should_receive(:execute).with(['/bin/sh', example_html, '-input', 'infile', '-output', 'outfile', '-format', 'A4',
-      '-orientation', 'landscape', '-render_time', '55000', '-zoom', '0.25', '-output_format', 'pdf'], 
-      {zoom: 0.25, output_format: "pdf"})
     s.render_pdf 'infile', 'outfile', zoom: 0.25
   end
 
