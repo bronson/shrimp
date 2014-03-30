@@ -5,6 +5,8 @@ require 'json'
 require 'tempfile'
 require 'thread_safe'
 
+# todo: extract process counting into a mixin?
+# todo: extract timing into a mixin?
 
 class Shrimple
   # an array of the currently running PhantomJS processes
@@ -17,44 +19,28 @@ class Shrimple
 
     # runs cmd, passes instr on its stdin, and fills outio and
     # errio with the command's output.
-    def initialize cmd, instr, outio, errio
+    def initialize cmd, inio, outio, errio
       @start_time = Time.now
       @chin, @chout, @cherr, @child = Open3.popen3(*cmd)
       @chout.binmode
-      @thrin  = Thread.new { flush(instr, @chin) }
+      @thrin  = Thread.new { drain(inio, @chin) }
       @throut = Thread.new { drain(@chout, outio) }
       @threrr = Thread.new { drain(@cherr, errio) }
       Shrimple.processes.push(self)
     end
 
-    def inspect
-      "#<Thing:0x%08x>" % (object_id * 2)
-    end
-
-    # writes the string to the file, then closes it
-    def flush instr, io
-      begin
-        @chin.write(instr);
-      rescue Errno::EPIPE
-        # child was killed, no big deal
-      ensure
-        @chin.close rescue Errno::EPIPE  # jruby bails if you try to close a broken pipe
-        finished?
-      end
-    end
-
     # reads every last drop, then closes both files
-    def drain io, file
+    def drain reader, writer
       begin
         # randomly chosen buffer size
-        loop { file.write(io.readpartial(256*1024)) }
+        loop { writer.write(reader.readpartial(256*1024)) }
       rescue EOFError
         # not an error
       rescue Errno::EPIPE
         # child was killed, no problem
       ensure
-        io.close
-        file.close
+        reader.close
+        writer.close
         finished?
       end
     end

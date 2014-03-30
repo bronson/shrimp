@@ -4,14 +4,15 @@ require 'spec_helper'
 #    while rspec spec/shrimple_process_spec.rb ; do echo -n ; done
 
 describe Shrimple::Process do
+  let(:chin)  { StringIO.new('small instring') }
   let(:chout) { StringIO.new }
   let(:cherr) { StringIO.new }
 
   it "has a working drain method" do
-    instr = 'x' * 1024 * 1024   # at least 1 MB of data
-    process = Shrimple::Process.new('cat', instr, chout, cherr)
+    bigin = StringIO.new('x' * 1024 * 1024) # at least 1 MB of data to test drain loop
+    process = Shrimple::Process.new('cat', bigin, chout, cherr)
     process.wait
-    expect(chout.string).to eq instr
+    expect(chout.string).to eq bigin.string
     expect(process.finished?).to be_true
   end
 
@@ -23,7 +24,7 @@ describe Shrimple::Process do
     elapsed = time do
       # echo -n doesn't work here because of platform variations
       # and for some reason jruby requires the explicit subshell; mri launches it automatically
-      process = Shrimple::Process.new('/bin/sh -c "sleep 0.1 && printf done."', 'instr', chout, cherr)
+      process = Shrimple::Process.new('/bin/sh -c "sleep 0.1 && printf done."', chin, chout, cherr)
       expect(Shrimple.processes.size).to eq 1
       process.wait
       claimed = process.stop_time - process.start_time
@@ -43,7 +44,7 @@ describe Shrimple::Process do
 
   it "has a working kill method" do
     elapsed = time do
-      process = Shrimple::Process.new(['sleep', '0.1'], 'instr', chout, cherr)
+      process = Shrimple::Process.new(['sleep', '0.1'], chin, chout, cherr)
       process.kill
       expect(process.finished?).to be_true
     end
@@ -55,16 +56,16 @@ describe Shrimple::Process do
 
   it "handles invalid commands" do
     expect {
-      process = Shrimple::Process.new(['ThisCmdDoes.Not.Exist.'], 'instr', chout, cherr)
+      process = Shrimple::Process.new(['ThisCmdDoes.Not.Exist.'], chin, chout, cherr)
     }.to raise_error(/[Nn]o such file/)
   end
 
   it "counts multiple processes" do
     expect(Shrimple.processes.size).to eq 0
-    process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
-    process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
-    process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
-    process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
+    process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)
+    process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)
+    process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)
+    process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)
     expect(Shrimple.processes.size).to eq 4
     Shrimple.processes.first.kill
     expect(Shrimple.processes.size).to eq 3
