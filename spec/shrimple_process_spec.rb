@@ -19,19 +19,19 @@ describe Shrimple::Process do
   end
 
   it "waits until a sleeping command is finished" do
-    expect(Shrimple::Process.count).to eq 0
+    expect(Shrimple.processes.size).to eq 0
 
     elapsed = time do
       # echo -n doesn't work here because of platform variations
       process = Shrimple::Process.new('sleep 0.1 && printf done.', 'instr', chout, cherr)
-      expect(Shrimple::Process.count).to eq 1
+      expect(Shrimple.processes.size).to eq 1
       process.wait
       expect(chout.string).to eq 'done.'
       expect(process.finished?).to be_true
     end
 
     expect(elapsed).to be >= 0.1
-    expect(Shrimple::Process.count).to eq 0
+    expect(Shrimple.processes.size).to eq 0
     expect(chout.closed_read?).to be_true
     expect(cherr.closed_read?).to be_true
   end
@@ -55,15 +55,15 @@ describe Shrimple::Process do
   end
 
   it "counts multiple processes" do
-    expect(Shrimple::Process.count).to eq 0
+    expect(Shrimple.processes.size).to eq 0
     process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
     process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
     process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
     process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
-    expect(Shrimple::Process.count).to eq 4
-    Shrimple::Process.running.first.kill
-    expect(Shrimple::Process.count).to eq 3
-    Shrimple::Process.running.each &:kill
-    expect(Shrimple::Process.count).to eq 0
+    expect(Shrimple.processes.size).to eq 4
+    Shrimple.processes.values.first.kill
+    expect(Shrimple.processes.size).to eq 3
+    Shrimple.processes.values.each &:kill
+    expect(Shrimple.processes.size).to eq 0
   end
 end

@@ -6,44 +6,23 @@ require 'tempfile'
 
 
 class Shrimple
-  class RunningProcesses
-    # just a thread-safe hash to keep track of running processes
+  class ThreadSafeHash
     def initialize
       @lock = Mutex.new
-      @list = {}
+      @list = Hash.new
     end
 
-    def size
-      @lock.synchronize { @list.size }
+    def method_missing name, *args, &block
+      @lock.synchronize { @list.send(name, *args, &block) }
     end
+  end
 
-    def all
-      @lock.synchronize { @list.values }
-    end
-
-    def add proc
-      @lock.synchronize { @list[proc.hash] = proc }
-    end
-
-    def remove proc
-      @lock.synchronize { @list.delete(proc.hash) }
-    end
+  def self.processes
+    @processes ||= ThreadSafeHash.new
   end
 
 
   class Process
-    @@processes = RunningProcesses.new
-
-    def self.running
-      @@processes.all
-    end
-
-    def self.count
-      @@processes.size
-    end
-
-
-
     # runs cmd, passes instr on its stdin, and fills outio and
     # errio with the command's output.
     def initialize cmd, instr, outio, errio
@@ -52,7 +31,7 @@ class Shrimple
       @thrin  = Thread.new { flush(instr, @chin) }
       @throut = Thread.new { drain(@chout, outio) }
       @threrr = Thread.new { drain(@cherr, errio) }
-      @@processes.add(self)
+      Shrimple.processes[self.hash] = self
     end
 
     def flush instr, io
@@ -87,7 +66,7 @@ class Shrimple
     # returns true if the command is done, false if there's still IO pending
     def finished?
       done = @chout.closed? && @cherr.closed? && @chin.closed?
-      @@processes.remove(self) if done
+      Shrimple.processes.delete(self.hash) if done
       done
     end
 
