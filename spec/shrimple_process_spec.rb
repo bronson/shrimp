@@ -19,23 +19,27 @@ describe Shrimple::Process do
   end
 
   it "waits until a sleeping command is finished" do
+    expect(Shrimple::Process.count).to eq 0
+
     elapsed = time do
       # echo -n doesn't work here because of platform variations
       process = Shrimple::Process.new('sleep 0.1 && printf done.', 'instr', chout, cherr)
+      expect(Shrimple::Process.count).to eq 1
       process.wait
       expect(chout.string).to eq 'done.'
       expect(process.finished?).to be_true
     end
 
     expect(elapsed).to be >= 0.1
+    expect(Shrimple::Process.count).to eq 0
     expect(chout.closed_read?).to be_true
     expect(cherr.closed_read?).to be_true
   end
 
-  it "has a working cancel method" do
+  it "has a working kill method" do
     elapsed = time do
       process = Shrimple::Process.new(['sleep', '0.1'], 'instr', chout, cherr)
-      process.cancel
+      process.kill
       expect(process.finished?).to be_true
     end
 
@@ -48,5 +52,18 @@ describe Shrimple::Process do
     expect {
       process = Shrimple::Process.new(['ThisCmdDoes.Not.Exist.'], 'instr', chout, cherr)
     }.to raise_error(Errno::ENOENT)
+  end
+
+  it "counts multiple processes" do
+    expect(Shrimple::Process.count).to eq 0
+    process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
+    process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
+    process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
+    process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
+    expect(Shrimple::Process.count).to eq 4
+    Shrimple::Process.running.first.kill
+    expect(Shrimple::Process.count).to eq 3
+    Shrimple::Process.running.each &:kill
+    expect(Shrimple::Process.count).to eq 0
   end
 end
