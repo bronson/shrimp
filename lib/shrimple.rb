@@ -4,6 +4,8 @@
 # TODO: return pdf/png/etc as binary string instead of a file?
 # TODO: support for renderBase64?
 # TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
+# TODO: return page text?
+# TODO: support casperjs?
 # TODO: include lots of info about page load in logfile
 # TODO: documentation!
 

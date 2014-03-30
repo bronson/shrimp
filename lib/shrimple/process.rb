@@ -1,4 +1,4 @@
-# Fires off a PhantomJS process and keeps track of the results
+# Fires off a PhantomJS process, feeds it, and keeps track of the results.
 
 require 'open3'
 require 'json'
@@ -32,12 +32,10 @@ class Shrimple
     def flush instr, io
       begin
         @chin.write(instr);
-      # rescue IOError
-        # chin was closed
       rescue Errno::EPIPE
-        # child was killed
+        # child was killed, no big deal
       ensure
-        @chin.close rescue Errno::EPIPE  # jruby bails even if you try to close a broken pipe
+        @chin.close rescue Errno::EPIPE  # jruby bails if you try to close a broken pipe
         finished?
       end
     end
@@ -50,7 +48,7 @@ class Shrimple
       rescue EOFError
         # not an error
       rescue Errno::EPIPE
-        # child was killed
+        # child was killed, no problem
       ensure
         io.close
         file.close
@@ -60,15 +58,15 @@ class Shrimple
 
     # returns true if the command is done, false if there's still IO pending
     def finished?
-      done = @chout.closed? && @cherr.closed? && @chin.closed?
-      Shrimple.processes.delete(self) if done
-      done
+      if @chout.closed? && @cherr.closed? && @chin.closed?
+        Shrimple.processes.delete(self)
+        return true
+      end
     end
 
     # Terminates the rendering process and closes the streams.
-    # Pass the "KILL" signal to kill the Phantom process hard.
+    # Pass the "KILL" signal to kill the Phantom process immediately and hard.
     def kill signal="TERM"
-      # IOError gets thrown if stream is already closed
       ::Process.kill(signal, @child.pid)
       wait_for_threads  # ensure threads are finished before returning so all files are closed
     end
