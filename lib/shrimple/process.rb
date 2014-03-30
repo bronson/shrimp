@@ -13,9 +13,12 @@ class Shrimple
   end
 
   class Process
+    attr_reader :start_time, :stop_time  # start and finish times of Phantom process
+
     # runs cmd, passes instr on its stdin, and fills outio and
     # errio with the command's output.
     def initialize cmd, instr, outio, errio
+      @start_time = Time.now
       @chin, @chout, @cherr, @child = Open3.popen3(*cmd)
       @chout.binmode
       @thrin  = Thread.new { flush(instr, @chin) }
@@ -59,6 +62,7 @@ class Shrimple
     # returns true if the command is done, false if there's still IO pending
     def finished?
       if @chout.closed? && @cherr.closed? && @chin.closed?
+        @stop_time = Time.now
         Shrimple.processes.delete(self)
         return true
       end

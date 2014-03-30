@@ -27,6 +27,8 @@ require 'shrimple'
 Shrimple.new.render_pdf('http://be.com', '/tmp/output.pdf', margin: '1cm')
 ```
 
+TODO: show start_time and finish_time
+
 
 ## Configuration
 

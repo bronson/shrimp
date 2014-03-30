@@ -16,7 +16,9 @@ describe Shrimple::Process do
   end
 
   it "waits until a sleeping command is finished" do
+    # pile a bunch of checks into this test so we only have to sleep once
     expect(Shrimple.processes.size).to eq 0
+    claimed = nil
 
     elapsed = time do
       # echo -n doesn't work here because of platform variations
@@ -24,11 +26,16 @@ describe Shrimple::Process do
       process = Shrimple::Process.new('/bin/sh -c "sleep 0.1 && printf done."', 'instr', chout, cherr)
       expect(Shrimple.processes.size).to eq 1
       process.wait
+      claimed = process.stop_time - process.start_time
       expect(chout.string).to eq 'done.'
       expect(process.finished?).to be_true
     end
 
+    # ensure process elapsed time is in the ballpark
     expect(elapsed).to be >= 0.1
+    expect(claimed).to be >= 0.1
+    expect(claimed).to be <= elapsed
+
     expect(Shrimple.processes.size).to eq 0
     expect(chout.closed_read?).to be_true
     expect(cherr.closed_read?).to be_true
