@@ -6,21 +6,10 @@ require 'tempfile'
 
 
 class Shrimple
-  class ThreadSafeHash
-    def initialize
-      @lock = Mutex.new
-      @list = Hash.new
-    end
-
-    def method_missing name, *args, &block
-      @lock.synchronize { @list.send(name, *args, &block) }
-    end
-  end
-
+  # note: not thread safe!
   def self.processes
-    @processes ||= ThreadSafeHash.new
+    @processes ||= Array.new
   end
-
 
   class Process
     # runs cmd, passes instr on its stdin, and fills outio and
@@ -31,9 +20,14 @@ class Shrimple
       @thrin  = Thread.new { flush(instr, @chin) }
       @throut = Thread.new { drain(@chout, outio) }
       @threrr = Thread.new { drain(@cherr, errio) }
-      Shrimple.processes[self.hash] = self
+      Shrimple.processes.push(self)
     end
 
+    def inspect
+      "#<Thing:0x%08x>" % (object_id * 2)
+    end
+
+    # writes the string to the file, then closes it
     def flush instr, io
       begin
         @chin.write(instr);
@@ -66,7 +60,7 @@ class Shrimple
     # returns true if the command is done, false if there's still IO pending
     def finished?
       done = @chout.closed? && @cherr.closed? && @chin.closed?
-      Shrimple.processes.delete(self.hash) if done
+      Shrimple.processes.delete(self) if done
       done
     end
 

@@ -61,9 +61,10 @@ describe Shrimple::Process do
     process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
     process = Shrimple::Process.new(['sleep', '20'], 'instr', StringIO.new, StringIO.new)
     expect(Shrimple.processes.size).to eq 4
-    Shrimple.processes.values.first.kill
+    Shrimple.processes.first.kill
     expect(Shrimple.processes.size).to eq 3
-    Shrimple.processes.values.each &:kill
+    # can't use Array#each since calling delete in the block causes it to screw up
+    Shrimple.processes.first.kill until Shrimple.processes.empty?
     expect(Shrimple.processes.size).to eq 0
   end
 end
