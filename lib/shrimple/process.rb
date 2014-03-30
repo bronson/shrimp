@@ -76,8 +76,9 @@ class Shrimple
     # blocks until the PhantomJS process is finished. raises an exception if it failed.
     def wait
       wait_for_threads
-      unless @child.value.success?
-        raise RenderingError.new("PhantomJS returned #{@child.value}")
+      val = @child.value
+      unless val.success?
+        raise RenderingError.new("PhantomJS returned #{val.inspect}")
       end
     end
 

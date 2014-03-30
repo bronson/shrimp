@@ -1,8 +1,5 @@
 require 'spec_helper'
 
-# we use timing to determine if reads blocked or not.  this might be
-# an issue on heavily loaded machines.   is there a better way?
-
 # run this to ensure there are no deadlock / process synchronization problems:
 #    while rspec spec/shrimple_process_spec.rb ; do echo -n ; done
 
@@ -23,7 +20,8 @@ describe Shrimple::Process do
 
     elapsed = time do
       # echo -n doesn't work here because of platform variations
-      process = Shrimple::Process.new('sleep 0.1 && printf done.', 'instr', chout, cherr)
+      # and for some reason jruby requires the explicit subshell; mri launches it automatically
+      process = Shrimple::Process.new('/bin/sh -c "sleep 0.1 && printf done."', 'instr', chout, cherr)
       expect(Shrimple.processes.size).to eq 1
       process.wait
       expect(chout.string).to eq 'done.'
@@ -51,7 +49,7 @@ describe Shrimple::Process do
   it "handles invalid commands" do
     expect {
       process = Shrimple::Process.new(['ThisCmdDoes.Not.Exist.'], 'instr', chout, cherr)
-    }.to raise_error(Errno::ENOENT)
+    }.to raise_error(/[Nn]o such file/)
   end
 
   it "counts multiple processes" do
