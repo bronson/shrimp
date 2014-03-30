@@ -37,7 +37,7 @@ class Shrimple
       rescue Errno::EPIPE
         # child was killed
       ensure
-        @chin.close_write
+        @chin.close rescue Errno::EPIPE  # jruby bails even if you try to close a broken pipe
         finished?
       end
     end
@@ -52,7 +52,7 @@ class Shrimple
       rescue Errno::EPIPE
         # child was killed
       ensure
-        io.close_read
+        io.close
         file.close
         finished?
       end
@@ -77,7 +77,7 @@ class Shrimple
     def wait
       wait_for_threads
       unless @child.value.success?
-        raise RenderingError.new("Rendering Error: #{cmd.join(' ')} returned #{@child.value}: #{outstr}")
+        raise RenderingError.new("PhantomJS returned #{@child.value}")
       end
     end
 
