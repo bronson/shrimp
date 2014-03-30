@@ -45,10 +45,10 @@ class Shrimple
       end
     end
 
-    # returns true if the command is done, false if there's still IO pending
+    # returns true and cleans up if the command is done, false if there's still IO pending
     def finished?
       if @chout.closed? && @cherr.closed? && @chin.closed?
-        @stop_time = Time.now
+        @stop_time ||= Time.now
         Shrimple.processes.delete(self)
         return true
       end
