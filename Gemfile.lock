@@ -1,6 +1,8 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    atomic (1.1.14)
+    atomic (1.1.14-java)
     diff-lcs (1.2.4)
     hashie (2.0.5)
     rake (10.1.0)
@@ -12,11 +14,17 @@ GEM
     rspec-expectations (2.14.3)
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-mocks (2.14.4)
+    thread_safe (0.1.3)
+      atomic
+    thread_safe (0.1.3-java)
+      atomic
 
 PLATFORMS
+  java
   ruby
 
 DEPENDENCIES
   hashie
   rake
   rspec
+  thread_safe

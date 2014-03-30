@@ -3,12 +3,13 @@
 require 'open3'
 require 'json'
 require 'tempfile'
+require 'thread_safe'
 
 
 class Shrimple
-  # note: not thread safe!
+  # an array of the currently running PhantomJS processes
   def self.processes
-    @processes ||= Array.new
+    @processes ||= ThreadSafe::Array.new
   end
 
   class Process
