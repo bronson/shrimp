@@ -1,6 +1,13 @@
 require File.dirname(File.expand_path(__FILE__)) + '/../lib/shrimple'
 
 
+RSpec.configure do |config|
+  config.after(:each) do
+    # if a failing test left phantom js processes hanging around, kill them
+    Shrimple.processes.first.kill until Shrimple.processes.empty?
+  end
+end
+
 # returns the example HTML that should be passed to phantomjs
 def example_html
   File.expand_path('../test_file.html', __FILE__)
@@ -14,3 +21,4 @@ def time &block
  finish = Time.now
  finish - start
 end
+
