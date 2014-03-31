@@ -16,11 +16,11 @@ describe Shrimple do
 
   it "dies if executable can't be found" do
     s = Shrimple.new(executable: '/bin/THIS_FILE_DOES.not.Exyst')
-    expect { s.render 'http://be.com' }.to raise_exception(/[Nn]o such file.*THIS_FILE_DOES.not.Exyst/)
+    expect { s.render 'http://be.com' }.to raise_exception(/[Nn]o such file/)
   end
 
   it "allows a bunch of different ways to set options" do
-    s = Shrimple.new(executable: '/bin/sh', renderer: example_html, background: true)
+    s = Shrimple.new(executable: '/bin/sh', renderer: example_html, render: {quality: 50})
 
     s.executable = '/bin/cat'
     s.page.paperSize.orientation = 'landscape'
@@ -33,7 +33,7 @@ describe Shrimple do
         output: 'outfile',
         executable: '/bin/cat',
         renderer: example_html,
-        background: true,
+        render: { quality: 50 },
         page: {
           paperSize: { orientation: 'landscape' },
           settings: { userAgent: 'webkitalike' },
@@ -42,11 +42,11 @@ describe Shrimple do
       }).to_hash)
     end
 
-    s.render 'infile', 'outfile'
+    s.render 'infile', to: 'outfile'
   end
 
   it "has a working compact" do
-    expect(Shrimple.compact({
+    expect(Shrimple.compact!({
       a: nil,
       b: { c: nil },
       d: { e: { f: "", g: 1 } },
@@ -56,6 +56,20 @@ describe Shrimple do
       h: false
     })
 
-    expect(Shrimple.compact({})).to eq({})
+    expect(Shrimple.compact!({})).to eq({})
+  end
+
+  it "has a working deep_dup" do
+    x = { a: 1, b: { c: 2, d: false, e:[1,2,3] }}
+    y = Shrimple.deep_dup(x)
+
+    x[:a] = 2
+    x[:b].delete(:e)
+    x[:b][:d] = true
+    x.delete(:b)
+
+    # y should be unchanged since we dup'd it
+    expect(x).to eq({a: 2})
+    expect(y).to eq({a: 1, b: { c: 2, d: false, e: [1, 2, 3] }})
   end
 end

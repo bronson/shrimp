@@ -9,7 +9,7 @@ class Shrimple
     renderer: nil,         # the render script to use. Useful for testing, or if you want to do something other than rendering the page.
     renderTime: nil,       # time in seconds after which the PhantomJS process should be killed
     input: nil,            # specifies the URL to request (use file:// for local assets)
-    output: nil,           # path to the rendered output file, nil to buffer output in memory
+    output: nil,           # path to the rendered output file, nil to buffer output in memory.  "to" is a more readable synonym: 'render url, to: file'.
     stderr: nil,           # path to the file to receive PhantomJS's stderr, leave nil to store it in a string
 
     # options passed to the PhantomJS render method  http://phantomjs.org/api/webpage/method/render.html
@@ -99,15 +99,21 @@ class Shrimple
   # defaults used by the render_pdf, render_png, etc helpers
 
   DefaultPageSize = {
-    format: 'A4',
-    orientation: 'portrait',
-    border: '1cm'
+    output_format: 'pdf',
+    paperSize: { 
+      format: 'A4',
+      orientation: 'portrait',
+      border: '1cm'
+    }
   }
 
   DefaultImageSize = {
-    width: '800px',
-    height: '600px',
-    border: '0px'
+    output_format: 'png',
+    paperSize: { 
+      width: '800px',
+      height: '600px',
+      border: '0px'
+    }
   }
 end
 

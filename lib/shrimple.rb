@@ -1,6 +1,5 @@
 # Keeps track of options and calls phantoimjs to run the render script.
 
-# TODO: clean up helpers
 # TODO: return pdf/png/etc as binary string instead of a file?
 # TODO: support for renderBase64?
 # TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
@@ -38,56 +37,44 @@ class Shrimple
   end
 
 
-  def render_pdf src, dst=:undefined, opts={}
-    defaults = {
-      output_format: 'pdf',
-      paperSize: Shrimple::DefaultPageSize
-    }
-
-    render src, dst, Hashie::Mash.new(defaults).deep_merge!(opts)
+  def render_pdf src, *opts
+    render src, Shrimple::DefaultPageSize, *opts
   end
 
-  def render_png src, dst=:undefined, opts={}
-    defaults = {
-      output_format: 'png',
-      paperSize: Shrimple::DefaultImageSize
-    }
-
-    render src, dst, Hashie::Mash.new(defaults).deep_merge!(opts)
+  def render_png src, *opts
+    render src, Shrimple::DefaultImageSize, {output_format: 'png'}, *opts
   end
 
-  def render_jpeg src, dst=:undefined, opts={}
-    defaults = {
-      output_format: 'jpeg',
-      paperSize: Shrimple::DefaultImageSize
-    }
-
-    render src, dst, Hashie::Mash.new(defaults).deep_merge!(opts)
+  def render_jpeg src, *opts
+    render src, Shrimple::DefaultImageSize, {output_format: 'jpeg'}, *opts
   end
 
-  def render_gif src, dst=:undefined, opts={}
-    defaults = {
-      output_format: 'gif',
-      paperSize: Shrimple::DefaultImageSize
-    }
-
-    render src, dst, Hashie::Mash.new(defaults).deep_merge!(opts)
+  def render_gif src, *opts
+    render src, Shrimple::DefaultImageSize, {output_format: 'gif'}, *opts
   end
 
-  def render src, dst=:undefined, opts={}
-    full_opts = options.deep_merge(opts).merge!(input: src)
-    full_opts.merge!(output: dst) unless dst == :undefined
-    
-    phantom = Shrimple::Phantom.new(self.class.compact(full_opts))
-    phantom.wait if opts[:background]
+  def render src, *opts
+    full_opts = Shrimple.deep_dup(options)
+    opts.each { |opt| full_opts.deep_merge!(opt) }
+    full_opts.merge!(input: src) if src
+    full_opts.merge!(output: full_opts.delete(:to)) if full_opts[:to]
+    self.class.compact!(full_opts)
+
+    phantom = Shrimple::Phantom.new(full_opts)
+    phantom.wait if full_opts[:background]
     phantom
   end
 
 
-  # how is this not a part of the standard library?
-  def self.compact hash
-    hash.delete_if { |k,v| v.nil? or (v.is_a?(Hash) && compact(v).empty?) or (v.respond_to?('empty?') && v.empty?) }
+  # how are these not a part of the standard library?
+  def self.compact! hash
+    hash.delete_if { |k,v| v.nil? or (v.is_a?(Hash) && compact!(v).empty?) or (v.respond_to?('empty?') && v.empty?) }
   end
+
+  def self.deep_dup hash
+    Marshal.load(Marshal.dump(hash))
+  end
+
 
   def self.default_renderer
     File.expand_path('../render.js', __FILE__)
