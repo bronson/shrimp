@@ -61,7 +61,7 @@ class Shrimple
     self.class.compact!(full_opts)
 
     phantom = Shrimple::Phantom.new(full_opts)
-    phantom.wait if full_opts[:background]
+    phantom.wait unless full_opts[:background]
     phantom
   end
 

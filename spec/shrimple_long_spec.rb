@@ -19,15 +19,18 @@ def prepare_file outfile
 end
 
 
-# TODO: test background mode
 # TODO: test a render.js that doesn't compile
 # TODO: test PhantomJS failures
 
 describe Shrimple do
+  it "renders a gif to memory" do
+    pending
+  end
+
   it "renders a pdf to a file" do
     outfile = prepare_file('/tmp/shrimple-test-output.pdf')
     s = Shrimple.new
-    s.render_pdf "file://#{example_html}", outfile
+    s.render_pdf "file://#{example_html}", to: outfile
     expect(File.exists? outfile).to eq true
     expect(pdf_valid?(File.new(outfile))).to eq true
   end
@@ -36,7 +39,8 @@ describe Shrimple do
     # TODO: set the size of the png, then verify the size when done
     outfile = prepare_file('/tmp/shrimple-test-output.png')
     s = Shrimple.new
-    s.render_png "file://#{example_html}", outfile
+    p = s.render_png "file://#{example_html}", output: outfile
+    puts "STDERR: " + p.stderr
     expect(File.exists? outfile).to eq true
   end
 end

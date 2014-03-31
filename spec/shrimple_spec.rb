@@ -27,7 +27,10 @@ describe Shrimple do
     s[:page][:settings][:userAgent] = 'webkitalike'
     s.options.page.zoomFactor = 0.25
 
-    allow(Shrimple::Phantom).to receive(:new).once.and_return(Object.new) do |opts|
+    mock_phanom = Object.new
+    mock_phanom.should_receive(:wait).once
+
+    allow(Shrimple::Phantom).to receive(:new).once.and_return(mock_phanom) do |opts|
       expect(opts.to_hash).to eq(Hashie::Mash.new({
         input: 'infile',
         output: 'outfile',
@@ -43,6 +46,16 @@ describe Shrimple do
     end
 
     s.render 'infile', to: 'outfile'
+  end
+
+  it "runs in the background" do
+    s = Shrimple.new(executable: '/bin/cat', renderer: 'tt.js', background: true)
+
+    mock_phantom = Object.new
+    mock_phantom.should_not_receive(:wait)
+    allow(Shrimple::Phantom).to receive(:new).once.and_return(mock_phantom)
+
+    p = s.render 'infile'
   end
 
   it "has a working compact" do
