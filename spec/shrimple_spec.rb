@@ -14,23 +14,48 @@ describe Shrimple do
     expect(s.renderer).to eq example_html
   end
 
-  it "calls the right basic command line" do
-    s = Shrimple.new
-    expect(s).to receive(:execute).once do |opts|
-      expect(opts.to_hash).to eq({'input' => 'infile', 'output' => 'outfile'})
+  it "dies if executable can't be found" do
+    s = Shrimple.new(executable: '/bin/THIS_FILE_DOES.not.Exyst')
+    expect { s.render 'http://be.com' }.to raise_exception(/[Nn]o such file.*THIS_FILE_DOES.not.Exyst/)
+  end
+
+  it "allows a bunch of different ways to set options" do
+    s = Shrimple.new(executable: '/bin/sh', renderer: example_html, background: true)
+
+    s.executable = '/bin/cat'
+    s.page.paperSize.orientation = 'landscape'
+    s[:page][:settings][:userAgent] = 'webkitalike'
+    s.options.page.zoomFactor = 0.25
+
+    expect(Shrimple).to receive(:execute).once do |opts|
+      expect(opts.to_hash).to eq(Hashie::Mash.new({
+        input: 'infile',
+        output: 'outfile',
+        executable: '/bin/cat',
+        renderer: example_html,
+        background: true,
+        page: {
+          paperSize: { orientation: 'landscape' },
+          settings: { userAgent: 'webkitalike' },
+          zoomFactor: 0.25
+        }
+      }).to_hash)
     end
+
     s.render 'infile', 'outfile'
   end
 
-  it "passes options" do
-    s = Shrimple.new(executable: '/bin/sh', renderer: example_html, orientation: 'landscape')
-    s.render_pdf 'infile', 'outfile', zoom: 0.25
-  end
+  it "has a working compact" do
+    expect(Shrimple.compact({
+      a: nil,
+      b: { c: nil },
+      d: { e: { f: "", g: 1 } },
+      h: false
+    })).to eq({
+      d: { e: { g: 1 }},
+      h: false
+    })
 
-  it "handles background and logfile options" do
-    # these options are consumed by Shrimple and not passed to render.js
-    s = Shrimple.new(background: true, logfile: "/tmp/mylog.log")
-    s.should_receive(:execute).with([s.executable, s.renderer, '-input', 'infile', '-output', 'outfile', '-format', 'A4', '-output_format', 'pdf'], {:output_format=>"pdf"})
-    s.render_pdf 'infile', 'outfile'
+    expect(Shrimple.compact({})).to eq({})
   end
 end

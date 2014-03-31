@@ -1,4 +1,4 @@
-# Fires off a PhantomJS process, feeds it, and keeps track of the results.
+# Fires off a child process, feeds it, and keeps track of the results.
 
 require 'open3'
 require 'json'
@@ -45,11 +45,15 @@ class Shrimple
       end
     end
 
+    def cleanup
+      @stop_time ||= Time.now
+      Shrimple.processes.delete(self)
+    end
+
     # returns true and cleans up if the command is done, false if there's still IO pending
     def finished?
       if @chout.closed? && @cherr.closed? && @chin.closed?
-        @stop_time ||= Time.now
-        Shrimple.processes.delete(self)
+        cleanup
         return true
       end
     end
