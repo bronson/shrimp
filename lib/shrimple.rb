@@ -77,7 +77,10 @@ class Shrimple
   def render src, dst=:undefined, opts={}
     full_opts = options.deep_merge(opts).merge!(input: src)
     full_opts.merge!(output: dst) unless dst == :undefined
-    self.class.execute(self.class.compact(full_opts))
+    
+    phantom = Shrimple::Phantom.new(self.class.compact(full_opts))
+    phantom.wait if opts[:background]
+    phantom
   end
 
 
@@ -92,13 +95,5 @@ class Shrimple
   
   def self.default_executable
     (defined?(Bundler::GemfileError) ? `bundle exec which phantomjs` : `which phantomjs`).chomp
-  end
-
-  # opts contains the full list of options so it's already merged with self.options.
-  # it might be overwritten so, if you care, dup it before calling this function.
-  def self.execute opts
-    phantom = Shrimple::Phantom.new(opts)
-    phantom.wait if opts[:background]
-    phantom
   end
 end

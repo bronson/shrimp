@@ -27,7 +27,7 @@ describe Shrimple do
     s[:page][:settings][:userAgent] = 'webkitalike'
     s.options.page.zoomFactor = 0.25
 
-    expect(Shrimple).to receive(:execute).once do |opts|
+    allow(Shrimple::Phantom).to receive(:new).once.and_return(Object.new) do |opts|
       expect(opts.to_hash).to eq(Hashie::Mash.new({
         input: 'infile',
         output: 'outfile',

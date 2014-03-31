@@ -12,6 +12,7 @@ def pdf_valid?(io)
   end
 end
 
+
 def prepare_file outfile
   File.delete(outfile) if File.exists?(outfile)
   outfile
@@ -23,7 +24,7 @@ end
 # TODO: test PhantomJS failures
 
 describe Shrimple do
-  it "renders a pdf" do
+  it "renders a pdf to a file" do
     outfile = prepare_file('/tmp/shrimple-test-output.pdf')
     s = Shrimple.new
     s.render_pdf "file://#{example_html}", outfile
@@ -31,7 +32,8 @@ describe Shrimple do
     expect(pdf_valid?(File.new(outfile))).to eq true
   end
 
-  it "renders a png" do
+  it "renders a png to a file" do
+    # TODO: set the size of the png, then verify the size when done
     outfile = prepare_file('/tmp/shrimple-test-output.png')
     s = Shrimple.new
     s.render_png "file://#{example_html}", outfile
