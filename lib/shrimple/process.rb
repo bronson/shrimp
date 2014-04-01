@@ -78,6 +78,7 @@ class Shrimple
       @thrin.join
       @throut.join
       @threrr.join
+      finished?
     end
   end
 end
