@@ -1,5 +1,9 @@
 # Keeps track of options and calls phantoimjs to run the render script.
 
+# TODO: absolutely need to use a hashwithindifferentaccess
+# TODO: thread safety, do not call finished? from drain.  rest of class is thread unsafe.
+#       (and that means no need to use threadsafearray, just don't do anything from child threads)
+# TODO: tests to ensure we merge options instead of overwriting
 # TODO: return pdf/png/etc as binary string instead of a file?
 # TODO: support for renderBase64?
 # TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
@@ -55,8 +59,9 @@ class Shrimple
 
   def render src, *opts
     full_opts = Shrimple.deep_dup(options)
+    full_opts.deep_merge!(src) if src && src.kind_of?(Hash)
     opts.each { |opt| full_opts.deep_merge!(opt) }
-    full_opts.merge!(input: src) if src
+    full_opts.merge!(input: src) if src && !src.kind_of?(Hash)
     full_opts.merge!(output: full_opts.delete(:to)) if full_opts[:to]
     self.class.compact!(full_opts)
 
@@ -66,7 +71,7 @@ class Shrimple
   end
 
 
-  # how are these not a part of the standard library?
+  # how are these not a part of Hash?
   def self.compact! hash
     hash.delete_if { |k,v| v.nil? or (v.is_a?(Hash) && compact!(v).empty?) or (v.respond_to?('empty?') && v.empty?) }
   end

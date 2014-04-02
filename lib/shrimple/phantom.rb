@@ -18,7 +18,7 @@ class Shrimple
       end
 
       # create the ios to supply input and read output
-      @stdin  = new_io(options[:input] || options)
+      @stdin  = new_io(options[:stdin] || StringIO.new(options.to_json))
       @stdout = new_io(options[:output], 'wb')
       @stderr = new_io(options[:stderr], 'wt')
 
@@ -36,19 +36,17 @@ class Shrimple
       end
     end
 
-    # pass a filepath, an IO object, or some JSON to output, or nil for empty StringIO ready for data.
+    # pass a filepath, an IO object or equivlanet, or nil to create an empty StringIO ready for data.
     def new_io name, *opt
       if name
         if name.kind_of? String
           return File.open(name, *opt)
-        elsif name.kind_of?(IO) || name.kind_of?(StringIO)
-          name # it's already an IO
         else
-          StringIO.new(options.to_json)
+          name
         end
+      else
+        StringIO.new
       end
-
-      StringIO.new
     end
 
     def read_io io

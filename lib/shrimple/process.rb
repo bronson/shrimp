@@ -36,6 +36,9 @@ class Shrimple
         loop { writer.write(reader.readpartial(256*1024)) }
       rescue EOFError
         # not an error
+        # puts "EOF STDOUT" if reader == @chout
+        # puts "EOF STDERR" if reader == @cherr
+        # puts "EOF STDIN #{reader}" if writer == @chin
       rescue Errno::EPIPE
         # child was killed, no problem
       ensure
@@ -61,7 +64,8 @@ class Shrimple
     # Terminates the rendering process and closes the streams.
     # Pass the "KILL" signal to kill the Phantom process immediately and hard.
     def kill signal="TERM"
-      ::Process.kill(signal, @child.pid)
+      return if @stop_time
+      ::Process.kill(signal, @child.pid) unless finished?
       wait_for_threads  # ensure threads are finished before returning so all files are closed
     end
 

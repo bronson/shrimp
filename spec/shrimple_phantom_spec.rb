@@ -27,27 +27,29 @@ describe Shrimple::Phantom do
 
     expect(phantom.config).to eq nil
     expect(File).not_to exist(path)
-    expect(JSON.parse(config)).to eq ({ignoreSslErrors: true})
+    expect(JSON.parse(config)).to eq ({'ignoreSslErrors' => true})
     expect(phantom.stdout).to eq ""
     expect(phantom.stdout).to eq ""
     expect(phantom.stderr).to eq ""
   end
 
   it "cleans up the config file when exiting normally" do
-    s = Shrimple.new(executable: '/bin/cat', background: true)
+    s = Shrimple.new(executable: ['/bin/cat'], background: true)
     s.config.ignoreSslErrors = true
 
     rd,wr = IO.pipe
-    phantom = s.render(input: rd)
+    phantom = s.render(stdin: rd)
 
     expect(phantom.config).to be_a Tempfile
     path = phantom.config.path
     expect(File).to exist(path)
+    wr.write("done.\n")
     wr.close
     phantom.wait
 
     expect(phantom.config).to eq nil
     expect(File).not_to exist(path)
+    expect(phantom.stdout).to eq "done.\n"
   end
 
   it "can read partial string contents while writing" do
