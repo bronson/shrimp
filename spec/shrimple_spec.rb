@@ -60,12 +60,22 @@ describe Shrimple do
 
   it "special-cases input as the first argument" do
     s = Shrimple.new
+    s.merge!(executable: nil, renderer: nil)
     # can either start with a value for input
-    expect(s.get_full_options("input", to: "output", executable: nil, renderer: nil)).
+    expect(s.get_full_options("input", to: "output")).
       to eq({'input' => 'input', 'output' => 'output'})
     # or just use hashes all the way through
-    expect(s.get_full_options(input: "eenput", output: "ootput", executable: nil, renderer: nil)).
+    expect(s.get_full_options(input: "eenput", output: "ootput")).
       to eq({'input' => 'eenput', 'output' => 'ootput'})
+  end
+
+  it "has options with indifferent access" do
+    s = Shrimple.new
+    s.merge!('executable' => nil, renderer: nil)
+    expect(s.get_full_options(executable: 'symbol', 'executable' => 'string')).to eq({'executable' => 'string'})
+    s.merge!(executable: 'symbol')
+    expect(s.get_full_options(executable: 'symbol')).to eq({'executable' => 'symbol'})
+    expect(Shrimple.compact!(s.to_hash)).to eq({'executable' => 'symbol'})
   end
 
   it "has a working compact" do

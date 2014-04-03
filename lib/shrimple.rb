@@ -1,6 +1,5 @@
 # Keeps track of options and calls phantoimjs to run the render script.
 
-# TODO: absolutely need to use a hashwithindifferentaccess
 # TODO: thread safety, do not call finished? from drain.  rest of class is thread unsafe.
 #       (and that means no need to use threadsafearray, just don't do anything from child threads)
 # TODO: tests to ensure we merge options instead of overwriting
