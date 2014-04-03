@@ -58,16 +58,20 @@ class Shrimple
   end
 
   def render src, *opts
+    full_opts = get_full_options(src, *opts)
+    phantom = Shrimple::Phantom.new(full_opts)
+    phantom.wait unless full_opts[:background]
+    phantom
+  end
+
+  def get_full_options src, *opts
     full_opts = Shrimple.deep_dup(options)
     full_opts.deep_merge!(src) if src && src.kind_of?(Hash)
     opts.each { |opt| full_opts.deep_merge!(opt) }
     full_opts.merge!(input: src) if src && !src.kind_of?(Hash)
     full_opts.merge!(output: full_opts.delete(:to)) if full_opts[:to]
     self.class.compact!(full_opts)
-
-    phantom = Shrimple::Phantom.new(full_opts)
-    phantom.wait unless full_opts[:background]
-    phantom
+    full_opts
   end
 
 

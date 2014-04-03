@@ -58,6 +58,16 @@ describe Shrimple do
     p = s.render 'infile'
   end
 
+  it "special-cases input as the first argument" do
+    s = Shrimple.new
+    # can either start with a value for input
+    expect(s.get_full_options("input", to: "output", executable: nil, renderer: nil)).
+      to eq({'input' => 'input', 'output' => 'output'})
+    # or just use hashes all the way through
+    expect(s.get_full_options(input: "eenput", output: "ootput", executable: nil, renderer: nil)).
+      to eq({'input' => 'eenput', 'output' => 'ootput'})
+  end
+
   it "has a working compact" do
     expect(Shrimple.compact!({
       a: nil,
