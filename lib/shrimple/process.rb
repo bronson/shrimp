@@ -3,10 +3,8 @@
 require 'open3'
 require 'json'
 require 'tempfile'
-
 require 'shrimple/process_monitor'
 
-# todo: extract timing into a mixin?
 
 class Shrimple
   class Process
@@ -15,11 +13,10 @@ class Shrimple
     # runs cmd, passes instr on its stdin, and fills outio and
     # errio with the command's output.
     def initialize cmd, inio, outio, errio
-      # add before forking the process so, if an error is raised, no big deal
-      Shrimple.processes.add(self)
-
       @start_time = Time.now
       @chin, @chout, @cherr, @child = Open3.popen3(*cmd)
+
+      Shrimple.processes.add(self)
       @chout.binmode
 
       @thrin  = Thread.new { drain(inio, @chin) }

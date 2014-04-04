@@ -1,17 +1,18 @@
 # Keeps track of options and calls phantoimjs to run the render script.
 
-# TODO: tests to ensure we merge options instead of overwriting
 # TODO: return pdf/png/etc as binary string instead of a file?
 # TODO: support for renderBase64?
-# TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
 # TODO: return page text?
-# TODO: how do I do something when a process exits?
+# TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
+# TODO: how do I do something when a process exits?  Shrimple::Phantom.atexit { ... }  ?
 # TODO: add a hard timeout
+
+# maybe:
 # TODO: add an exit reason to Process?  :completed, :killed, :timeout?
-# TODO: use indifferent access for options hash
 # TODO: support casperjs?
 # TODO: include lots of info about page load in logfile
 # TODO: documentation!
+
 
 require 'hashie/mash'
 require 'shrimple/phantom'

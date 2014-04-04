@@ -61,12 +61,11 @@ class Shrimple
 
     # called when process is terminated.  Probably called from another thread so be threadsafe.
     def cleanup
+      super
       if @config
         @config.unlink
         @config = nil
       end
-
-      super
     end
 
     def wait

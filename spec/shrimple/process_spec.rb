@@ -58,8 +58,11 @@ describe Shrimple::Process do
 
   it "handles invalid commands" do
     expect {
+      expect(Shrimple.processes.count).to eq 0
       process = Shrimple::Process.new(['ThisCmdDoes.Not.Exist.'], chin, chout, cherr)
+      raise "we shouldn't get here"
     }.to raise_error(/[Nn]o such file/)
+    expect(Shrimple.processes.count).to eq 0
   end
 
   it "counts multiple processes" do

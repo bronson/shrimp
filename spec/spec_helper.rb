@@ -24,6 +24,8 @@ RSpec.configure do |config|
   # if a failing test left phantom js processes hanging around, kill them
   config.after(:each) do
     Shrimple.processes.kill_all
+    count = Shrimple.processes.count
+    raise "still #{count} prcoess#{count == 1 ? '' : 'es'}??" unless count == 0
   end
 end
 
