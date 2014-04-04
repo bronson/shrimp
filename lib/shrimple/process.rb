@@ -3,9 +3,9 @@
 require 'open3'
 require 'json'
 require 'tempfile'
-require 'thread_safe'
 
-# todo: extract process counting into a mixin?
+require 'shrimple/process_monitor'
+
 # todo: extract timing into a mixin?
 
 class Shrimple
@@ -15,6 +15,9 @@ class Shrimple
     # runs cmd, passes instr on its stdin, and fills outio and
     # errio with the command's output.
     def initialize cmd, inio, outio, errio
+      # add before forking the process so, if an error is raised, no big deal
+      Shrimple.processes.add(self)
+
       @start_time = Time.now
       @chin, @chout, @cherr, @child = Open3.popen3(*cmd)
       @chout.binmode
@@ -22,11 +25,9 @@ class Shrimple
       @thrin  = Thread.new { drain(inio, @chin) }
       @throut = Thread.new { drain(@chout, outio) }
       @threrr = Thread.new { drain(@cherr, errio) }
-
       # ensure cleanup is called when the child exits.
       # (seems strange I can't just call @child.atexit { cleanup } )
       @thrchild = Thread.new { @child.join; cleanup }
-      Shrimple.processes.add(self)
     end
 
     # reads every last drop, then closes both files
@@ -99,9 +100,6 @@ class Shrimple
     # blocks until the PhantomJS process is finished. raises an exception if it failed.
     def wait
       cleanup
-      unless @child.value.success?
-        raise RenderingError.new("PhantomJS returned #{@child.value.inspect}")
-      end
     end
   end
 end

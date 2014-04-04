@@ -69,6 +69,13 @@ class Shrimple
       super
     end
 
+    def wait
+      super
+      unless @child.value.success?
+        raise RenderingError.new("PhantomJS returned #{@child.value.inspect}")
+      end
+    end
+
     def stdout
       read_io @stdout
     end

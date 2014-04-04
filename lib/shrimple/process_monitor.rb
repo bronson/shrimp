@@ -2,6 +2,8 @@
 
 
 class Shrimple
+  class TooManyProcessesError < StandardError; end
+
   class ProcessMonitor
     attr_accessor :max_processes
 
@@ -14,6 +16,9 @@ class Shrimple
 
     def add process
       @mutex.synchronize do
+        if @max_processes >= 0 && @processes.count >= @max_processes
+          raise Shrimple::TooManyProcessesError.new("launched process #{@processes.count+1} of #{@max_processes} maximum")
+        end
         @processes.push process
       end
     end

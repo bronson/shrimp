@@ -5,6 +5,7 @@
 # TODO: support for renderBase64?
 # TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
 # TODO: return page text?
+# TODO: how do I do something when a process exits?
 # TODO: add a hard timeout
 # TODO: add an exit reason to Process?  :completed, :killed, :timeout?
 # TODO: use indifferent access for options hash
@@ -15,14 +16,9 @@
 require 'hashie/mash'
 require 'shrimple/phantom'
 require 'shrimple/default_config'
-require 'shrimple/process_monitor'
 
 
 class Shrimple
-  class NoExecutableError < StandardError; end
-  class RenderingError < StandardError; end
-
-
   attr_accessor :options
 
   # allows setting config options directly on this object
