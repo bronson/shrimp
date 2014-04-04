@@ -1,7 +1,5 @@
 # Keeps track of options and calls phantoimjs to run the render script.
 
-# TODO: thread safety, do not call finished? from drain.  rest of class is thread unsafe.
-#       (and that means no need to use threadsafearray, just don't do anything from child threads)
 # TODO: tests to ensure we merge options instead of overwriting
 # TODO: return pdf/png/etc as binary string instead of a file?
 # TODO: support for renderBase64?
@@ -17,6 +15,7 @@
 require 'hashie/mash'
 require 'shrimple/phantom'
 require 'shrimple/default_config'
+require 'shrimple/process_monitor'
 
 
 class Shrimple
@@ -83,6 +82,10 @@ class Shrimple
     Marshal.load(Marshal.dump(hash))
   end
 
+
+  def self.processes
+    @processes ||= Shrimple::ProcessMonitor.new
+  end
 
   def self.default_renderer
     File.expand_path('../render.js', __FILE__)

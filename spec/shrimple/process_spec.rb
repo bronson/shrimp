@@ -18,15 +18,17 @@ describe Shrimple::Process do
 
   it "waits until a sleeping command is finished" do
     # pile a bunch of checks into this test so we only have to sleep once
-    expect(Shrimple.processes.size).to eq 0
+    expect(Shrimple.processes.count).to eq 0
     claimed = nil
 
     elapsed = time do
       # echo -n doesn't work here because of platform variations
       # and for some reason jruby requires the explicit subshell; mri launches it automatically
       process = Shrimple::Process.new('/bin/sh -c "sleep 0.1 && printf done."', chin, chout, cherr)
-      expect(Shrimple.processes.size).to eq 1
+      expect(Shrimple.processes.count).to eq 1
       process.wait
+      expect(process.start_time).not_to eq nil
+      expect(process.stop_time).not_to eq nil
       claimed = process.stop_time - process.start_time
       expect(chout.string).to eq 'done.'
       expect(process.finished?).to be_true
@@ -37,7 +39,7 @@ describe Shrimple::Process do
     expect(claimed).to be >= 0.1
     expect(claimed).to be <= elapsed
 
-    expect(Shrimple.processes.size).to eq 0
+    expect(Shrimple.processes.count).to eq 0
     expect(chout.closed_read?).to be_true
     expect(cherr.closed_read?).to be_true
   end
@@ -61,16 +63,20 @@ describe Shrimple::Process do
   end
 
   it "counts multiple processes" do
-    expect(Shrimple.processes.size).to eq 0
+    expect(Shrimple.processes.count).to eq 0
     process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)
     process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)
     process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)
     process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)
-    expect(Shrimple.processes.size).to eq 4
+    expect(Shrimple.processes.count).to eq 4
+    puts "and hezza"
     Shrimple.processes.first.kill
-    expect(Shrimple.processes.size).to eq 3
+    puts "GOT HERE"
+    expect(Shrimple.processes.count).to eq 3
+    puts "and here"
     # can't use Array#each since calling delete in the block causes it to screw up
-    Shrimple.processes.first.kill until Shrimple.processes.empty?
-    expect(Shrimple.processes.size).to eq 0
+    Shrimple.processes.kill_all
+    puts "and here"
+    expect(Shrimple.processes.count).to eq 0
   end
 end

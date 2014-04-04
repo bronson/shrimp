@@ -20,9 +20,10 @@ end
 
 RSpec.configure do |config|
   config.include Helpers
+
+  # if a failing test left phantom js processes hanging around, kill them
   config.after(:each) do
-    # if a failing test left phantom js processes hanging around, kill them
-    Shrimple.processes.first.kill until Shrimple.processes.empty?
+    Shrimple.processes.kill_all
   end
 end
 
