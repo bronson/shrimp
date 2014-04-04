@@ -54,41 +54,23 @@ class Shrimple
     # ennsure all threads have exited to prevent synchronization errors
     # if the phantom process is truly stuck, this might block forever
     def wait_for_the_end
-      puts "waiting thrin #{@child.pid}"
-      @thrin.join
-      puts "waiting throut #{@child.pid}"
-      @throut.join
-      puts "waiting threrr #{@child.pid}"
-      @threrr.join
-      puts "waiting child #{@child.pid}"
-      @child.join
-      # [@thrin, @throut, @threrr, @child].each { |th| puts "waiting #{th}"; th.join }
-      puts "waiting thrchild #{@child.pid}"
+      [@thrin, @throut, @threrr, @child].each(&:join)
       @thrchild.join unless Thread.current == @thrchild
-      puts "wait done #{@child.pid}"
     end
 
     # called from thread context so must synchronize.  may be called multiple times.
     def cleanup
-      puts "waiting to clean up"
       wait_for_the_end
-      puts "continuing cleanup"
-      puts "setting stop time"
       @stop_time ||= Time.now
-      puts "deleting self"
       Shrimple.processes.remove(self)
-      puts "cleanup done #{@child.pid}"
     end
 
     # kill-o-zaps the rendering process and waits until it's sure it's truly gone
     def kill seconds_until_panic=2
       if @child.alive?
-        puts "sending kill to #{@child.pid}"
         ::Process.kill("TERM", @child.pid)
       end
-      puts "first kill done #{@child.pid}"
       if !@child.join(seconds_until_panic)
-        puts "needs second kill"
         ::Process.kill("KILL", @child.pid) if @child.alive?
       end
       @thrchild.join

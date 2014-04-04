@@ -40,7 +40,6 @@ describe Shrimple do
     outfile = prepare_file('/tmp/shrimple-test-output.png')
     s = Shrimple.new
     p = s.render_png "file://#{example_html}", output: outfile
-    puts "STDERR: " + p.stderr
     expect(File.exists? outfile).to eq true
   end
 end

@@ -72,14 +72,10 @@ describe Shrimple::Process do
     process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)
     process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)
     expect(Shrimple.processes.count).to eq 4
-    puts "and hezza"
     Shrimple.processes.first.kill
-    puts "GOT HERE"
     expect(Shrimple.processes.count).to eq 3
-    puts "and here"
     # can't use Array#each since calling delete in the block causes it to screw up
     Shrimple.processes.kill_all
-    puts "and here"
     expect(Shrimple.processes.count).to eq 0
   end
 end
