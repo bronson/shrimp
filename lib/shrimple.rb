@@ -11,7 +11,7 @@
 # TODO: add an exit reason to Process?  :completed, :killed, :timeout?
 # TODO: support casperjs?
 # TODO: include lots of info about page load in logfile
-# TODO: documentation!
+# TODO: documentation!  probably using sdoc or yard?
 
 
 require 'hashie/mash'

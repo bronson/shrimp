@@ -28,6 +28,7 @@ describe Shrimple do
   end
 
   it "renders a pdf to a file" do
+    pending
     outfile = prepare_file('/tmp/shrimple-test-output.pdf')
     s = Shrimple.new
     s.render_pdf "file://#{example_html}", to: outfile
@@ -36,6 +37,7 @@ describe Shrimple do
   end
 
   it "renders a png to a file" do
+    pending
     # TODO: set the size of the png, then verify the size when done
     outfile = prepare_file('/tmp/shrimple-test-output.png')
     s = Shrimple.new
