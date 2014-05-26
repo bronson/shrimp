@@ -27,13 +27,20 @@ require 'shrimple'
 Shrimple.new.render_pdf('http://be.com', '/tmp/output.pdf', margin: '1cm')
 ```
 
+```ruby
+s = Shrimple.new
+result = s.render_text('http://thingsididlastnight.com')
+result.stdout   # <== TODO: this is arcane
+```
+=> "Your Mom\n"
+
 TODO: show start_time and finish_time
 
 
 ## Configuration
 
-Fairly t  Options specified
-later override those specified earlier.
+Options specified later always override those specified earlier.
+Options passed to render only affect that render call -- they are not remembered.
 
 ```ruby
   s = Shrimple.new(orientation: 'landscape')    # pass options to the constructor

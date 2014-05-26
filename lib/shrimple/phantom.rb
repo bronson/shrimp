@@ -1,7 +1,7 @@
 # Adds a pleasant API on top of Shrimple::Process
 
-
 require 'shrimple/process'
+require 'stringio'
 
 class Shrimple
   class Phantom < Process

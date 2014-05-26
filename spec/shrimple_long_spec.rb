@@ -45,6 +45,12 @@ describe Shrimple do
   #   s.render
   # end
 
+  it "renders text to a string" do
+    s = Shrimple.new
+    result = s.render_text('file://' + example_html)
+    output = result.stdout   # TODO: get rid of this line
+    expect(output).to eq "Hello World!\n"
+  end
 
   it "renders a gif to memory" do
     pending

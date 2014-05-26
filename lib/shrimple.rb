@@ -2,7 +2,6 @@
 
 # TODO: return pdf/png/etc as binary string instead of a file?
 # TODO: support for renderBase64?
-# TODO: return page text?
 # TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
 # TODO: how do I do something when a process exits?  Shrimple::Phantom.atexit { ... }  ?
 # TODO: add a hard timeout
@@ -52,6 +51,10 @@ class Shrimple
 
   def render_gif src, *opts
     render src, Shrimple::DefaultImageSize, {output_format: 'gif'}, *opts
+  end
+
+  def render_text src, *opts
+    render src, {renderer: File.expand_path('../render_text.js', __FILE__)}, *opts
   end
 
   def render src={}, *opts
