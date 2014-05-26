@@ -60,4 +60,10 @@ describe Shrimple::ProcessMonitor do
     expect(child).to eq process1
     expect(Shrimple.processes.count).to eq 0
   end
+
+  it "handles waiting for zero processes" do
+    expect {
+      child = Shrimple.processes.wait_next
+    }.to raise_exception(ThreadsWait::ErrNoWaitingThread)
+  end
 end

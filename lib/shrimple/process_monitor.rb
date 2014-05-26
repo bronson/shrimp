@@ -48,6 +48,8 @@ class Shrimple
     end
 
     # blocks until any child process returns (unless nonblock is true)
+    # raises an exception if no processes are running, or if called nonblocking
+    # and no processes have finished (see ThreadsWait#next_wait for details).
     def wait_next nonblock=nil
       # we wait on child threads since calling waitpid would produce a race condition.
 
