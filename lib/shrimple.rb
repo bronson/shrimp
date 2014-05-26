@@ -1,6 +1,5 @@
 # Keeps track of options and calls phantoimjs to run the render script.
 
-# TODO: return pdf/png/etc as binary string instead of a file?
 # TODO: support for renderBase64?
 # TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
 # TODO: how do I do something when a process exits?  Shrimple::Phantom.atexit { ... }  ?

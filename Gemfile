@@ -5,4 +5,5 @@ gem 'hashie'
 group :test do
   gem 'rspec'
   gem 'rake'  # for travis-ci
+  gem 'dimensions'
 end
