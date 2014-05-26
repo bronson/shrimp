@@ -15,8 +15,10 @@ end
 
 
 def prepare_file outfile
+  # TODO: there MUST be a better way of handling file output in rspec
+  # (can't mock file ops because the output is coming from phantomjs)
   File.delete(outfile) if File.exists?(outfile)
-  outfile
+  return '/tmp/' + outfile
 end
 
 
@@ -45,12 +47,23 @@ describe Shrimple do
   #   s.render
   # end
 
+
   it "renders text to a string" do
     s = Shrimple.new
-    result = s.render_text('file://' + example_html)
+    result = s.render_text("file://#{example_html}")
     output = result.stdout   # TODO: get rid of this line
     expect(output).to eq "Hello World!\n"
   end
+
+  it "renders text to a file" do
+    outfile = prepare_file('shrimple-test-output.txt')
+    s = Shrimple.new
+    s.render_text("file://#{example_html}", to: outfile)
+    output = File.read(outfile)
+    expect(output).to eq "Hello World!\n"
+    File.delete(outfile)
+  end
+
 
   it "renders a gif to memory" do
     pending
@@ -58,7 +71,7 @@ describe Shrimple do
 
   it "renders a pdf to a file" do
     pending
-    outfile = prepare_file('/tmp/shrimple-test-output.pdf')
+    outfile = prepare_file('shrimple-test-output.pdf')
     s = Shrimple.new
     s.render_pdf "file://#{example_html}", to: outfile
     expect(File.exists? outfile).to eq true
@@ -68,7 +81,7 @@ describe Shrimple do
   it "renders a png to a file" do
     pending
     # TODO: set the size of the png, then verify the size when done
-    outfile = prepare_file('/tmp/shrimple-test-output.png')
+    outfile = prepare_file('shrimple-test-output.png')
     s = Shrimple.new
     p = s.render_png "file://#{example_html}", output: outfile
     expect(File.exists? outfile).to eq true
