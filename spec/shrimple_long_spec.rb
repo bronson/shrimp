@@ -64,6 +64,12 @@ describe Shrimple do
     File.delete(outfile)
   end
 
+  it "renders html to a string" do
+    s = Shrimple.new
+    result = s.render_text("file://#{example_html}", html: true)  # TODO: make this param more sensible
+    output = result.stdout   # TODO: get rid of this line
+    expect(output).to include "<h1>Hello World!</h1>"
+  end
 
   it "renders a gif to memory" do
     pending
@@ -85,5 +91,8 @@ describe Shrimple do
     s = Shrimple.new
     p = s.render_png "file://#{example_html}", output: outfile
     expect(File.exists? outfile).to eq true
+  end
+
+  it "renders a png to a stream" do
   end
 end
