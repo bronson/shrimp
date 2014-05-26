@@ -46,15 +46,12 @@ class Shrimple
       end
     end
 
-    def pid
-      @child.pid
-    end
-
     # returns true if the phantom process has exited and cleaned up
     def finished?
       @stop_time != nil
     end
 
+    # returns false if the process hasn't finished yet
     def success?
       finished? && @child.value.success?
     end
@@ -87,6 +84,11 @@ class Shrimple
     # blocks until the PhantomJS process is finished. raises an exception if it failed.
     def wait
       cleanup
+    end
+
+    # only meant to be used by the ProcessMonitor
+    def _child_thread
+      @child
     end
   end
 end

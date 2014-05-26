@@ -1,5 +1,7 @@
 # keeps track of running Shrimple processes
 
+require 'thwait'
+
 
 class Shrimple
   class TooManyProcessesError < StandardError; end
@@ -10,7 +12,7 @@ class Shrimple
     # pass 0 to disable max_processes
     def initialize(max_processes=20)
       @mutex ||= Mutex.new
-      @processes ||= []   # TODO: convert this to a hash by pid
+      @processes ||= []   # TODO: convert this to a hash by child thread?
       @max_processes = max_processes
     end
 
@@ -45,16 +47,19 @@ class Shrimple
       first.kill until @processes.empty?
     end
 
-    # idles until any child process returns
-    # pass Process::WNOHANG if you don't want to block
-    def wait_any flags=0
-      pid,status = ::Process.waitpid2(-1, flags)
-      if pid
-        process = @processes.find { |process| process.pid == pid }
-        process.cleanup
-        return process
-      end
-      nil
+    # blocks until any child process returns (unless nonblock is true)
+    def wait_next nonblock=nil
+      # we wait on child threads since calling waitpid would produce a race condition.
+
+      threads = {}
+      @processes.each { |p|
+        threads[p._child_thread] = p
+      }
+
+      thread = ThreadsWait.new(threads.keys).next_wait(nonblock)
+      process = threads[thread]
+      process.wait_for_the_end   # otherwise it might be finished, might not
+      process
     end
   end
 end
