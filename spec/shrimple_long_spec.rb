@@ -48,6 +48,7 @@ describe Shrimple do
   # end
 
 
+  # TODO: what happens when asked to render a file that doesn't exist?  Currently it hangs.
   it "renders text to a string" do
     s = Shrimple.new
     result = s.render_text("file://#{example_html}")
@@ -85,7 +86,6 @@ describe Shrimple do
   end
 
   it "renders a png to a file" do
-    pending
     # TODO: set the size of the png, then verify the size when done
     outfile = prepare_file('shrimple-test-output.png')
     s = Shrimple.new
