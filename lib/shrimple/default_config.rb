@@ -93,27 +93,6 @@ class Shrimple
   DefaultHeaders = {
    "Accept-Encoding" => "identity"    # Don't accept gzipped responses, work around https://github.com/ariya/phantomjs/issues/10930
    # you can also use page.settings.userAgent to set the useragent.
-  },
-
-
-  # defaults used by the render_pdf, render_png, etc helpers
-
-  DefaultPageSize = {
-    output_format: 'pdf',
-    paperSize: { 
-      format: 'A4',
-      orientation: 'portrait',
-      border: '1cm'
-    }
-  }
-
-  DefaultImageSize = {
-    output_format: 'png',
-    paperSize: { 
-      width: '800px',
-      height: '600px',
-      border: '0px'
-    }
   }
 end
 
