@@ -1,5 +1,8 @@
 require 'spec_helper'
 
+# Mostly tests the Shrimple API.  Other specs test the internals.
+
+
 describe Shrimple do
   it "automatically finds the executable and renderer" do
     s = Shrimple.new
