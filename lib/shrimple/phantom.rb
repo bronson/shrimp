@@ -22,6 +22,11 @@ class Shrimple
       @stdout = new_io(options[:output], 'wb')
       @stderr = new_io(options[:stderr], 'wt')
 
+      if options[:debug]
+        $stderr.puts "COMMAND: #{command_line}"
+        $stderr.puts "STDIN: #{options.to_json}"
+      end
+
       super(command_line, @stdin, @stdout, @stderr)
     end
 

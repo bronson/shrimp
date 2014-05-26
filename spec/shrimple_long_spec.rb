@@ -73,6 +73,21 @@ describe Shrimple do
     expect(output).to include "<h1>Hello World!</h1>"
   end
 
+  it "supports a debugging mode" do
+    # isn't there a better way of resetting global variables in rspec?
+    olderr = $stderr
+    begin
+      $stderr = StringIO.new
+      s = Shrimple.new(debug: true)
+      s.render_text("file://#{example_html}")
+
+      expect($stderr.string).to match /^COMMAND: \[.*phantomjs.*render_text.js"\]/
+      expect($stderr.string).to match /^STDIN: {.*"debug":true.*}/
+    ensure
+      $stderr = olderr
+    end
+  end
+
   it "renders a pdf to a file" do
     outfile = prepare_file('shrimple-test-output.pdf')
     s = Shrimple.new(to: outfile)
