@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'dimensions'
 
-# this file contains the time-consuming tests that, in theory, don't really
-# test anything other than PhantomJS.
+# this file contains the time-consuming tests that shell out to phantomjs
+
 
 def pdf_valid?(io)
   # quick & dirty check
@@ -71,6 +71,21 @@ describe Shrimple do
     result = s.render_html("file://#{example_html}")
     output = result.stdout   # TODO: get rid of this line
     expect(output).to include "<h1>Hello World!</h1>"
+  end
+
+  it "handles a missing file" do
+    # also ensures failures's stderr appears in the exception
+    s = Shrimple.new
+    expect {
+      s.render_text("file://this-does-not-exist")
+    }.to raise_exception(/Unable to load.*this-does-not-exist/)
+  end
+
+  it "handles phantomjs complaining about a missing render script" do
+    s = Shrimple.new(renderer: 'this-does-not-exist')
+    expect {
+      s.render_text("file://#{example_html}")
+    }.to raise_exception(/Can't open 'this-does-not-exist'/)
   end
 
   it "supports a debugging mode" do

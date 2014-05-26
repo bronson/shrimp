@@ -23,6 +23,7 @@ class Shrimple
       @stderr = new_io(options[:stderr], 'wt')
 
       if options[:debug]
+        # hm, should this be replaced with methods?  or maybe a superclass?
         $stderr.puts "COMMAND: #{command_line}"
         $stderr.puts "STDIN: #{options.to_json}"
       end

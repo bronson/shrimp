@@ -22,8 +22,7 @@ class Shrimple
       @thrin  = Thread.new { drain(inio, @chin) }
       @throut = Thread.new { drain(@chout, outio) }
       @threrr = Thread.new { drain(@cherr, errio) }
-      # ensure cleanup is called when the child exits.
-      # (seems strange I can't just call @child.atexit { cleanup } )
+      # ensure cleanup is called when the child exits. (strange it requires a whole new thread...?)
       @thrchild = Thread.new { @child.join; cleanup }
     end
 

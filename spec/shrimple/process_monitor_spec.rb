@@ -23,7 +23,7 @@ describe Shrimple::ProcessMonitor do
     processes.add(Object.new)
   end
 
-  it "counts multiple processes" do
+  it "counts and kills multiple processes" do
     expect(Shrimple.processes.count).to eq 0
     process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)
     process = Shrimple::Process.new(['sleep', '20'], StringIO.new, StringIO.new, StringIO.new)

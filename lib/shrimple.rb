@@ -2,8 +2,9 @@
 
 # TODO: support for renderBase64?
 # TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
-# TODO: how do I do something when a process exits?  Shrimple::Phantom.atexit { ... }  ?
-# TODO: add a hard timeout
+#       and maybe page.evaluate(function() { document.body.bgColor = 'white'; });
+# TODO: add a hard timeout.  remove any other timeouts because who cares?
+# TODO: add a header and footer to the page, printheaderfooter.coffee
 # TODO: wow --config=file sucks.  maybe add a way to specify cmdline args again?
 #       either that or fix phantomjs...  https://github.com/ariya/phantomjs/issues/12265 https://github.com/ariya/phantomjs/issues/11775
 
@@ -12,6 +13,7 @@
 # TODO: support casperjs?
 # TODO: include lots of info about page load in logfile
 # TODO: documentation!  probably using sdoc or yard?
+# TODO: possible to test margins?  printmargins.coffee
 
 
 require 'hashie/mash'
