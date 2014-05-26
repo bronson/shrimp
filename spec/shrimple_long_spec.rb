@@ -68,7 +68,7 @@ describe Shrimple do
 
   it "renders html to a string" do
     s = Shrimple.new
-    result = s.render_text("file://#{example_html}", html: true)  # TODO: make this param more sensible
+    result = s.render_html("file://#{example_html}")
     output = result.stdout   # TODO: get rid of this line
     expect(output).to include "<h1>Hello World!</h1>"
   end
@@ -81,7 +81,7 @@ describe Shrimple do
       s = Shrimple.new(debug: true)
       s.render_text("file://#{example_html}")
 
-      expect($stderr.string).to match /^COMMAND: \[.*phantomjs.*render_text.js"\]/
+      expect($stderr.string).to match /^COMMAND: \[.*phantomjs.*render.js"\]/
       expect($stderr.string).to match /^STDIN: {.*"debug":true.*}/
     ensure
       $stderr = olderr

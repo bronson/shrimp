@@ -36,6 +36,7 @@ class Shrimple
   end
 
 
+  # might be time to allow method_missing to handle these helpers...
   def render_pdf src, *opts
     render src, {render: {format: 'pdf'}}, *opts
   end
@@ -52,9 +53,15 @@ class Shrimple
     render src, {render: {format: 'gif'}}, *opts
   end
 
-  def render_text src, *opts
-    render src, {renderer: File.expand_path('../render_text.js', __FILE__)}, *opts
+  def render_html src, *opts
+    render src, {render: {format: 'html'}}, *opts
   end
+
+  def render_text src, *opts
+    render src, {render: {format: 'text'}}, *opts
+  end
+
+
 
   def render src={}, *opts
     full_opts = get_full_options(src, *opts)
