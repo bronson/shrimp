@@ -78,4 +78,26 @@ describe Shrimple::Process do
     Shrimple.processes.kill_all
     expect(Shrimple.processes.count).to eq 0
   end
+
+  it "waits for multiple processes" do
+    expect(Shrimple.processes.count).to eq 0
+    process1 = Shrimple::Process.new(['sleep', '3'], StringIO.new, StringIO.new, StringIO.new)
+    process2 = Shrimple::Process.new(['sleep', '1'], StringIO.new, StringIO.new, StringIO.new)
+    process3 = Shrimple::Process.new(['sleep', '2'], StringIO.new, StringIO.new, StringIO.new)
+    expect(Shrimple.processes.count).to eq 3
+
+    child = Shrimple.processes.wait_any
+    expect(child.pid).to eq process2.pid
+    expect(child.finished?).to be_true
+    expect(child.success?).to be_true
+    expect(Shrimple.processes.count).to eq 2
+
+    child = Shrimple.processes.wait_any
+    expect(child.pid).to eq process3.pid
+    expect(Shrimple.processes.count).to eq 1
+
+    child = Shrimple.processes.wait_any
+    expect(child.pid).to eq process1.pid
+    expect(Shrimple.processes.count).to eq 0
+  end
 end

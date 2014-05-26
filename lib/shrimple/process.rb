@@ -46,9 +46,17 @@ class Shrimple
       end
     end
 
+    def pid
+      @child.pid
+    end
+
     # returns true if the phantom process has exited and cleaned up
     def finished?
       @stop_time != nil
+    end
+
+    def success?
+      finished? && @child.value.success?
     end
 
     # ennsure all threads have exited to prevent synchronization errors

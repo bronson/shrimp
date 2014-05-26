@@ -6,11 +6,10 @@ require 'spec_helper'
 
 
 describe Shrimple::ProcessMonitor do
-  it "won't launch too many processes" do
+  it "will add a process" do
     processes = Shrimple::ProcessMonitor.new(1)
     # this should not raise an exception
-    # not using expect(...).not_to raise_exception since that eats all raised expections
-    # making it rather hard to debug...
+    # not using expect(...).not_to raise_exception since that eats all raised expections.
     processes.add(Object.new)
   end
 

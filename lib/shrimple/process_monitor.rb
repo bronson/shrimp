@@ -10,7 +10,7 @@ class Shrimple
     # pass 0 to disable max_processes
     def initialize(max_processes=20)
       @mutex ||= Mutex.new
-      @processes ||= []
+      @processes ||= []   # TODO: convert this to a hash by pid
       @max_processes = max_processes
     end
 
@@ -43,6 +43,18 @@ class Shrimple
 
     def kill_all
       first.kill until @processes.empty?
+    end
+
+    # idles until any child process returns
+    # pass Process::WNOHANG if you don't want to block
+    def wait_any flags=0
+      pid,status = ::Process.waitpid2(-1, flags)
+      if pid
+        process = @processes.find { |process| process.pid == pid }
+        process.cleanup
+        return process
+      end
+      nil
     end
   end
 end
