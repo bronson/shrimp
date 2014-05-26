@@ -41,15 +41,15 @@ class Shrimple
   end
 
   def render_png src, *opts
-    render src, Shrimple::DefaultImageSize, {output_format: 'png'}, *opts
+    render src, {page: Shrimple::DefaultImageSize, render: {format: 'png'}}, *opts
   end
 
   def render_jpeg src, *opts
-    render src, Shrimple::DefaultImageSize, {output_format: 'jpeg'}, *opts
+    render src, {page: Shrimple::DefaultImageSize, render: {format: 'jpeg'}}, *opts
   end
 
   def render_gif src, *opts
-    render src, Shrimple::DefaultImageSize, {output_format: 'gif'}, *opts
+    render src, {page: Shrimple::DefaultImageSize, render: {format: 'gif'}}, *opts
   end
 
   def render_text src, *opts

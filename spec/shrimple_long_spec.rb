@@ -76,8 +76,8 @@ describe Shrimple do
   it "renders a pdf to a file" do
     pending
     outfile = prepare_file('shrimple-test-output.pdf')
-    s = Shrimple.new
-    s.render_pdf "file://#{example_html}", to: outfile
+    s = Shrimple.new(to: outfile)
+    s.render_pdf "file://#{example_html}"
     expect(File.exists? outfile).to eq true
     expect(pdf_valid?(File.new(outfile))).to eq true
   end
@@ -108,6 +108,19 @@ describe Shrimple do
     dimensions = Dimensions(StringIO.new(output.stdout))    
     expect(dimensions.width).to eq 555
     expect(dimensions.height).to eq 555
+  end
+
+  it "renders a jpeg to a file" do
+    outfile = prepare_file('shrimple-test-output.jpg')
+    s = Shrimple.new
+    s.page.viewportSize = { width: 320, height: 240 }
+    s.output = outfile
+    output = s.render_jpeg "file://#{example_html}"
+
+    expect(File.exists? outfile).to eq true
+    dimensions = Dimensions.dimensions(outfile)
+    expect(dimensions[0]).to eq 320
+    expect(dimensions[1]).to eq 240
   end
 
   it "renders a gif to memory" do
