@@ -6,6 +6,8 @@
 # TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
 # TODO: how do I do something when a process exits?  Shrimple::Phantom.atexit { ... }  ?
 # TODO: add a hard timeout
+# TODO: wow --config=file sucks.  maybe add a way to specify cmdline args again?
+#       either that or fix phantomjs...  https://github.com/ariya/phantomjs/issues/12265 https://github.com/ariya/phantomjs/issues/11775
 
 # maybe:
 # TODO: add an exit reason to Process?  :completed, :killed, :timeout?
@@ -52,7 +54,7 @@ class Shrimple
     render src, Shrimple::DefaultImageSize, {output_format: 'gif'}, *opts
   end
 
-  def render src, *opts
+  def render src={}, *opts
     full_opts = get_full_options(src, *opts)
     phantom = Shrimple::Phantom.new(full_opts)
     phantom.wait unless full_opts[:background]

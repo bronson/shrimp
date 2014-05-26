@@ -3,7 +3,7 @@
 
 class Shrimple
   DefaultConfig = {
-    # specifies options for running the PhantomJS executable
+    # options for running the PhantomJS executable, ignored by render script
     background: nil,       # false blocks until page is rendered, true returns immediately
     executable: nil,       # specifies the PhantomJS executable to use. If unspecified then Shrimple will search for one.
     renderer: nil,         # the render script to use. Useful for testing, or if you want to do something other than rendering the page.

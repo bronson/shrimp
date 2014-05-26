@@ -51,7 +51,7 @@ class Shrimple
 
     def read_io io
       if io.kind_of?(StringIO)
-        # can't rewind because then writes would go to wrong place
+        # can't rewind because then writes go to wrong place
         io.string
       else
         io.rewind
@@ -71,7 +71,8 @@ class Shrimple
     def wait
       super
       unless @child.value.success?
-        raise RenderingError.new("PhantomJS returned #{@child.value.inspect}")
+        # TODO: this could be better
+        raise "PhantomJS returned #{@child.value.exitstatus}: #{stderr}"
       end
     end
 
