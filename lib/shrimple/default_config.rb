@@ -18,6 +18,8 @@ class Shrimple
     input: nil,            # specifies the URL to request (use file:// for local assets)
     output: nil,           # path to the rendered output file, nil to buffer output in memory.  "to" is a more readable synonym: 'render url, to: file'.
     stderr: nil,           # path to the file to receive PhantomJS's stderr, leave nil to store it in a string
+    onSuccess: nil,        # a function to call when the pdf has been successfully rendered
+    onError: nil,          # a function to call when the pdf has failed for whatever reason (timeout, killed, network error, etc)
 
 
     #

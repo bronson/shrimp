@@ -32,6 +32,7 @@ describe Shrimple::Process do
       claimed = process.stop_time - process.start_time
       expect(chout.string).to eq 'done.'
       expect(process.finished?).to eq true
+      expect(process.success?).to eq true
     end
 
     # ensure process elapsed time is in the ballpark

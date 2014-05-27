@@ -3,6 +3,9 @@
 # TODO: add a header and footer to the page, printheaderfooter.coffee
 # TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
 #       and maybe page.evaluate(function() { document.body.bgColor = 'white'; });
+# TODO: fix syntax of non-background mode, make retrieving data easier
+# TODO: allow constructor to accept multiple hashes, add merge method to merge options hashes
+# TODO: add ability to specify max number of processes in process_monitor
 # TODO: add onResourceTimeout: https://github.com/onlyurei/phantomjs/commit/fa5a3504070f86a99f11469a3b7eb17a0b005ef7
 # TODO: add cookiefile support?
 # TODO: wow --config=file sucks.  maybe add a way to specify cmdline args again?
@@ -74,13 +77,17 @@ class Shrimple
   end
 
   def get_full_options src, *opts
+    onSuccess = options.delete(:onSuccess)
+    onError = options.delete(:onError)
+
     full_opts = Shrimple.deep_dup(options)
     full_opts.deep_merge!(src) if src && src.kind_of?(Hash)
     opts.each { |opt| full_opts.deep_merge!(opt) }
     full_opts.merge!(input: src) if src && !src.kind_of?(Hash)
     full_opts.merge!(output: full_opts.delete(:to)) if full_opts[:to]
+    
     self.class.compact!(full_opts)
-    full_opts
+    full_opts.merge(onSuccess: onSuccess, onError: onError)
   end
 
 

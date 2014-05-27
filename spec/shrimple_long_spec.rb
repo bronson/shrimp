@@ -47,10 +47,14 @@ describe Shrimple do
 
 
   it "renders text to a string" do
+    callback_param = nil
     s = Shrimple.new
+    s.onSuccess = Proc.new { |result| callback_param = result }
+    s.onError = Proc.new { fail }
     result = s.render_text("file://#{example_html}")
     output = result.stdout   # TODO: get rid of this line
     expect(output).to eq "Hello World!\n"
+    expect(callback_param).to eq result
   end
 
   it "renders text to a file" do
@@ -71,20 +75,28 @@ describe Shrimple do
 
   it "handles a missing file" do
     # also ensures failures's stderr appears in the exception
+    callback_param = nil
     s = Shrimple.new
+    s.onSuccess = Proc.new { fail }
+    s.onError = Proc.new { |result| callback_param = result }
     expect {
       s.render_text("file://this-does-not-exist")
     }.to raise_exception(Shrimple::PhantomError, /Unable to load.*this-does-not-exist/)
+    expect(callback_param).to be_a Shrimple::Phantom
   end
 
   it "handles a missing file in background mode" do
+    callback_param = nil
     s = Shrimple.new(background: true)
+    s.onSuccess = Proc.new { fail }
+    s.onError = Proc.new { |result| callback_param = result }
     result = s.render_text("file://this-does-not-exist")
     child = Shrimple.processes.wait_next
 
     expect(child).to eq result
     expect(result.success?).to eq false
     expect(result.stderr).to match(/Unable to load.*this-does-not-exist/)
+    expect(callback_param).to eq result
   end
 
   it "handles phantomjs complaining about a missing render script" do
