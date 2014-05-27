@@ -74,14 +74,14 @@ describe Shrimple do
     s = Shrimple.new
     expect {
       s.render_text("file://this-does-not-exist")
-    }.to raise_exception(/Unable to load.*this-does-not-exist/)
+    }.to raise_exception(Shrimple::PhantomError, /Unable to load.*this-does-not-exist/)
   end
 
   it "handles phantomjs complaining about a missing render script" do
     s = Shrimple.new(renderer: 'this-does-not-exist')
     expect {
       s.render_text("file://#{example_html}")
-    }.to raise_exception(/Can't open 'this-does-not-exist'/)
+    }.to raise_exception(Shrimple::PhantomError, /Can't open 'this-does-not-exist'/)
   end
 
   # # it's hopeless: https://github.com/ariya/phantomjs/issues/10687
