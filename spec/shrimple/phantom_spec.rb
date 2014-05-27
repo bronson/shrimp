@@ -54,12 +54,12 @@ describe Shrimple::Phantom do
 
   it "can read partial string contents while writing" do
     # ensure writes still go on the end of the buffer after reading
-    pending
+    # pending
   end
 
   it "can read partial file contents while writing" do
     # ensure writes still go on the end of the buffer after reading
-    pending
+    # pending
   end
 end
 

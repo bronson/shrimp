@@ -13,6 +13,7 @@
 # maybe:
 # TODO: add an exit reason to Process?  :completed, :killed, :timeout?
 # TODO: support casperjs?
+# TODO: fill in both "can read partial" tests
 # TODO: include lots of info about page load in logfile
 # TODO: documentation!  probably using sdoc or yard?
 # TODO: possible to test margins?  printmargins.coffee
