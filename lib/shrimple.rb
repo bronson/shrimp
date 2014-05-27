@@ -85,9 +85,10 @@ class Shrimple
     opts.each { |opt| full_opts.deep_merge!(opt) }
     full_opts.merge!(input: src) if src && !src.kind_of?(Hash)
     full_opts.merge!(output: full_opts.delete(:to)) if full_opts[:to]
+    full_opts.merge!(onSuccess: onSuccess, onError: onError)
     
     self.class.compact!(full_opts)
-    full_opts.merge(onSuccess: onSuccess, onError: onError)
+    full_opts
   end
 
 
