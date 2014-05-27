@@ -19,11 +19,14 @@ class Shrimple
       Shrimple.processes.add(self)
       @chout.binmode
 
+      @killed = false
+      @timed_out = false
+
       @thrin  = Thread.new { drain(inio, @chin) }
       @throut = Thread.new { drain(@chout, outio) }
       @threrr = Thread.new { drain(@cherr, errio) }
       # ensure cleanup is called when the child exits. (strange it requires a whole new thread...?)
-      @thrchild = Thread.new { kill unless @child.join(timeout); cleanup }
+      @thrchild = Thread.new { outatime unless @child.join(timeout); cleanup }
     end
 
     # reads every last drop, then closes both files
@@ -45,7 +48,7 @@ class Shrimple
       end
     end
 
-    # returns true if the phantom process has exited and cleaned up
+
     def finished?
       @stop_time != nil
     end
@@ -54,6 +57,15 @@ class Shrimple
     def success?
       finished? && @child.value.success?
     end
+
+    def killed?
+      @killed
+    end
+
+    def timed_out?
+      @timed_out
+    end
+
 
     # ennsure all threads have exited to prevent synchronization errors
     # if the phantom process is truly stuck, this might block forever
@@ -71,6 +83,7 @@ class Shrimple
 
     # kill-o-zaps the rendering process and waits until it's sure it's truly gone
     def kill seconds_until_panic=2
+      @killed = true
       if @child.alive?
         ::Process.kill("TERM", @child.pid)
       end
@@ -78,6 +91,11 @@ class Shrimple
         ::Process.kill("KILL", @child.pid) if @child.alive?
       end
       @thrchild.join unless Thread.current == @thrchild
+    end
+
+    def outatime
+      @timed_out = true
+      kill
     end
 
     # blocks until the PhantomJS process is finished. raises an exception if it failed.

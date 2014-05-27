@@ -52,6 +52,22 @@ describe Shrimple::Phantom do
     expect(phantom.stdout).to eq "done.\n"
   end
 
+  it "times out when running in the foreground" do
+    s = Shrimple.new(executable: ['sleep', '10'], timeout: 0)
+    expect {
+      phantom = s.render('/dev/null')
+    }.to raise_exception(Shrimple::TimedOut)
+  end
+
+  it "times out when running in the background" do
+    s = Shrimple.new(executable: ['sleep', '10'], background: true, timeout: 0)
+    phantom = s.render('/dev/null')
+    Shrimple.processes.wait_next
+    expect(phantom.timed_out?).to eq true
+    expect(phantom.killed?).to eq true
+    expect(phantom.success?).to be_false
+  end
+
   it "can read partial string contents while writing" do
     # ensure writes still go on the end of the buffer after reading
     # pending

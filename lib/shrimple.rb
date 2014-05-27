@@ -10,7 +10,6 @@
 # TODO: test that page.customHeaders appear in the network requests (how....?)
 
 # maybe:
-# TODO: add an exit reason to Process?  :completed, :killed, :timeout?
 # TODO: support casperjs?
 # TODO: fill in both "can read partial" tests
 # TODO: include lots of info about page load in logfile
@@ -26,7 +25,7 @@ require 'shrimple/default_config'
 class Shrimple
   attr_accessor :options
 
-  # allows setting config options directly on this object
+  # allows setting config options directly on this object: s.timeout = 10
   def method_missing name, *args, &block
     options.send(name, *args, &block)
   end

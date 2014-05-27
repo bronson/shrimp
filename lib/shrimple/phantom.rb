@@ -5,6 +5,7 @@ require 'stringio'
 
 class Shrimple
   class PhantomError < StandardError; end
+  class TimedOut < StandardError; end
 
   class Phantom < Process
     attr_reader :options, :config
@@ -79,6 +80,7 @@ class Shrimple
     def wait
       super
       unless @child.value.success?
+        raise Shrimple::TimedOut.new if timed_out?
         raise Shrimple::PhantomError.new("PhantomJS returned #{@child.value.exitstatus}: #{stderr}")
       end
     end

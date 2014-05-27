@@ -47,8 +47,18 @@ describe Shrimple::Process do
   it "has a working kill method" do
     elapsed = time do
       process = Shrimple::Process.new(['sleep', '0.1'], chin, chout, cherr)
+
+      expect(process.finished?).to eq false
+      expect(process.killed?).to eq false
+      expect(process.success?).to eq false
+      expect(process.timed_out?).to eq false
+
       process.kill
+
       expect(process.finished?).to eq true
+      expect(process.killed?).to eq true
+      expect(process.success?).to eq nil
+      expect(process.timed_out?).to eq false
     end
 
     expect(elapsed).to be < 0.1
