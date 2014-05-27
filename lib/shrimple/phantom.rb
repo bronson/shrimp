@@ -71,6 +71,7 @@ class Shrimple
     end
 
     # called when process is terminated.  Probably called from another thread so be threadsafe.
+    # will probably be called multiple times
     def cleanup
       super
       if @config
@@ -79,9 +80,11 @@ class Shrimple
       end
 
       proc = (success? ? @onSuccess : @onError)
+      @onSuccess = @onError = nil     # ensure we don't call callback multiple times
       proc.call(self) if proc
     end
 
+    # blocks until the PhantomJS process is finished. raises an exception if it failed.
     def wait
       super
       unless @child.value.success?

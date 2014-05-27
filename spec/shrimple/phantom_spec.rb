@@ -68,6 +68,20 @@ describe Shrimple::Phantom do
     expect(phantom.success?).to eq false
   end
 
+  it "can call multiple callbacks from the same renderer" do
+    success = 0
+    failure = 0
+    s = Shrimple.new(executable: ['cat'])
+    s.onSuccess = Proc.new { |result| success += 1 }
+    s.onError = Proc.new { |result| failure += 1 }
+    s.render('/dev/null')
+    s.render('/dev/null')
+    s.render('/dev/null')
+    s.render('/dev/null')
+    expect(success).to eq 4
+    expect(failure).to eq 0
+  end
+
   it "can read partial string contents while writing" do
     # ensure writes still go on the end of the buffer after reading
     # pending

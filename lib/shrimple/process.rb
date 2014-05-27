@@ -106,7 +106,6 @@ class Shrimple
       kill
     end
 
-    # blocks until the PhantomJS process is finished. raises an exception if it failed.
     def wait
       cleanup
     end

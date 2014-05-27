@@ -1,5 +1,6 @@
 # Keeps track of options and calls phantoimjs to run the render script.
 
+# TODO: make debug mode continually dump stderr to parent stderr, plus add debugging to render script
 # TODO: add a header and footer to the page, printheaderfooter.coffee
 # TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
 #       and maybe page.evaluate(function() { document.body.bgColor = 'white'; });
@@ -76,17 +77,18 @@ class Shrimple
     phantom
   end
 
-  def get_full_options src, *opts
-    onSuccess = options.delete(:onSuccess)
-    onError = options.delete(:onError)
+  def get_full_options src, *inopts
+    exopts = options.dup
+    onSuccess = exopts.delete(:onSuccess)
+    onError = exopts.delete(:onError)
 
-    full_opts = Shrimple.deep_dup(options)
+    full_opts = Shrimple.deep_dup(exopts)
     full_opts.deep_merge!(src) if src && src.kind_of?(Hash)
-    opts.each { |opt| full_opts.deep_merge!(opt) }
+    inopts.each { |opt| full_opts.deep_merge!(opt) }
     full_opts.merge!(input: src) if src && !src.kind_of?(Hash)
     full_opts.merge!(output: full_opts.delete(:to)) if full_opts[:to]
     full_opts.merge!(onSuccess: onSuccess, onError: onError)
-    
+
     self.class.compact!(full_opts)
     full_opts
   end
