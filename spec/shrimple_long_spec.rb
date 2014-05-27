@@ -49,7 +49,13 @@ describe Shrimple do
   it "renders text to a string" do
     callback_param = nil
     s = Shrimple.new
-    s.onSuccess = Proc.new { |result| callback_param = result }
+    s.onSuccess = Proc.new do |result|
+      # make sure this process isn't removed from the process table
+      # until after this callback returns.
+      sleep(0.2)
+      expect(Shrimple.processes.count).to eq 1
+      callback_param = result
+    end
     s.onError = Proc.new { fail }
     result = s.render_text("file://#{example_html}")
     output = result.stdout   # TODO: get rid of this line

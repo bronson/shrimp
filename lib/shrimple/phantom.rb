@@ -38,7 +38,7 @@ class Shrimple
 
     # blocks until the PhantomJS process is finished. raises an exception if it failed.
     def wait
-      _cleanup
+      stop
       unless @child.value.success?
         raise Shrimple::TimedOut.new if timed_out?
         raise Shrimple::PhantomError.new("PhantomJS returned #{@child.value.exitstatus}: #{stderr}")
@@ -54,18 +54,15 @@ class Shrimple
     end
 
 
-    # called when process is terminated.  Probably called from another thread so be threadsafe.
-    # will probably be called multiple times
+    # cleans up after the process.  synchronized so it's guaranteed to only be called once.
+    # process is removed from the process table after this call returns
     def _cleanup
       super
-      if @config
-        @config.unlink
-        @config = nil
-      end
 
       proc = (success? ? @onSuccess : @onError)
-      @onSuccess = @onError = nil     # ensure we don't call callback multiple times
       proc.call(self) if proc
+
+      @config.unlink if @config
     end
 
 

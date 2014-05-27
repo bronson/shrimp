@@ -47,7 +47,7 @@ class Shrimple
 
       thread = ThreadsWait.new(threads.keys).next_wait(nonblock)
       process = threads[thread]
-      process._cleanup # otherwise process will be in an indeterminite state
+      process.stop # otherwise process will be in an indeterminite state
       process
     end
 
@@ -61,9 +61,23 @@ class Shrimple
       end
     end
 
+    # removes process from process table.  pass a block that cleans up after the process.
+    # _remove may be called lots of times but block will only be called once
     def _remove process
+      cleanup = false
+
       @mutex.synchronize do
-        @processes.delete process
+        cleanup = process._deactivate
+        raise "process not in process table??" if cleanup && !@processes.include?(process)
+      end
+
+      # don't want to hold mutex when calling callback because it might block
+      if cleanup
+        yield
+        @mutex.synchronize do
+          value = @processes.delete(process)
+          raise "someone else deleted process??" unless value
+        end
       end
     end
   end

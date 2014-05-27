@@ -25,7 +25,6 @@ describe Shrimple::Phantom do
     config = File.read(path)
     phantom.kill
 
-    expect(phantom.config).to eq nil
     expect(File).not_to exist(path)
     expect(JSON.parse(config)).to eq ({'ignoreSslErrors' => true})
     expect(phantom.stdout).to eq ""
@@ -45,9 +44,8 @@ describe Shrimple::Phantom do
     expect(File).to exist(path)
     wr.write("done.\n")
     wr.close
-    phantom._cleanup   # calling internal function: probably a test smell
+    phantom.stop
 
-    expect(phantom.config).to eq nil
     expect(File).not_to exist(path)
     expect(phantom.stdout).to eq "done.\n"
   end

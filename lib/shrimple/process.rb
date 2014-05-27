@@ -33,7 +33,7 @@ class Shrimple
         else
           @child.join
         end
-        _cleanup
+        stop
       }
     end
 
@@ -65,7 +65,17 @@ class Shrimple
       if !@child.join(seconds_until_panic)
         ::Process.kill("KILL", @child.pid) if @child.alive?
       end
+      # ensure kill doesn't return until process is truly gone
+      # (there may be a chance of this deadlocking with a blocking callback... not sure)
       @thrchild.join unless Thread.current == @thrchild
+    end
+
+    # waits patiently until phantom process terminates, then cleans up
+    def stop
+      wait_for_the_end   # do all our waiting outside the sync loop
+      Shrimple.processes._remove(self) do
+        _cleanup
+      end
     end
 
 
@@ -74,11 +84,17 @@ class Shrimple
       @child
     end
 
-    # may be called multiple times due to harmless race conditions
+    # may only be called once, synchronized by stop()
     def _cleanup
-      wait_for_the_end
-      @stop_time ||= Time.now
-      Shrimple.processes._remove(self)
+      raise "Someone else already stopped this process??!!" if @stop_time
+      @stop_time = Time.now
+    end
+
+    # returns true if process was previously active.  must be externally synchronized.
+    def _deactivate
+      retval = @inactive
+      @inactive = true
+      return !retval
     end
 
 
