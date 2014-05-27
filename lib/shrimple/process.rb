@@ -55,7 +55,7 @@ class Shrimple
 
     # returns false if the process hasn't finished yet
     def success?
-      finished? && @child.value.success?
+      finished? && @child.value.success? ? true : false
     end
 
     def killed?

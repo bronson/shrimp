@@ -65,7 +65,7 @@ describe Shrimple::Phantom do
     Shrimple.processes.wait_next
     expect(phantom.timed_out?).to eq true
     expect(phantom.killed?).to eq true
-    expect(phantom.success?).to be_false
+    expect(phantom.success?).to eq false
   end
 
   it "can read partial string contents while writing" do

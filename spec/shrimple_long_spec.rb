@@ -83,7 +83,7 @@ describe Shrimple do
     child = Shrimple.processes.wait_next
 
     expect(child).to eq result
-    expect(result.success?).to be_false
+    expect(result.success?).to eq false
     expect(result.stderr).to match(/Unable to load.*this-does-not-exist/)
   end
 
@@ -100,7 +100,7 @@ describe Shrimple do
     child = Shrimple.processes.wait_next
 
     expect(child).to eq result
-    expect(result.success?).to be_false
+    expect(result.success?).to eq false
     expect(result.stderr).to match(/Can't open 'this-does-not-exist'/)
   end
 
