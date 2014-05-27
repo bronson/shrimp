@@ -1,9 +1,16 @@
-# This structure is preconfigured with the default for each component.
-# nil means use a sane default.  All params except for 'input' have a sane default.
+# Here is a list of all the phantomjs settings that we know about.
+# you can set any option you want -- it need not be documented or listed here.
+#
+# nil means leave unset -- use Phantom's defaults
+
 
 class Shrimple
   DefaultConfig = {
-    # options for running the PhantomJS executable, ignored by render script
+
+    #
+    # options for launching the PhantomJS executable
+    #
+
     background: nil,       # false blocks until page is rendered, true returns immediately
     executable: nil,       # specifies the PhantomJS executable to use. If unspecified then Shrimple will search for one.
     renderer: nil,         # the render script to use. Useful for testing, or if you want to do something other than rendering the page.
@@ -12,13 +19,21 @@ class Shrimple
     output: nil,           # path to the rendered output file, nil to buffer output in memory.  "to" is a more readable synonym: 'render url, to: file'.
     stderr: nil,           # path to the file to receive PhantomJS's stderr, leave nil to store it in a string
 
-    # options passed to the PhantomJS render method  http://phantomjs.org/api/webpage/method/render.html
+
+    #
+    # arguments passed to the PhantomJS render method  http://phantomjs.org/api/webpage/method/render.html
+    #
+
     render: {
-      format: nil,         # the format for the output file, taken from output extension
+      format: nil,         # format for the output file.  usually supplied by a helper (render_pdf, render_png, etc)
       quality: nil         # only relevant to format=jpeg I think, 1-100.  not sure what Phantom's default is
     },
 
-    # specifies the command-line options passed to PhantomJS: http://phantomjs.org/api/command-line.html
+
+    #
+    # command-line options passed to PhantomJS in --config: http://phantomjs.org/api/command-line.html
+    #
+
     config: {
       cookiesFile: nil,        # path to the persitent cookies file
       diskCache: nil,          # if true, caches requested assets.  Defaults to false.  See config.maxDiskCacheSize.  The cache location is not currently configurable.
@@ -39,7 +54,11 @@ class Shrimple
       webSecurity: nil         # enable web security and forbid cross-domain XHR?  Defaults to true
     },
 
-    # configures PhantomJS's webpage module: http://phantomjs.org/api/webpage/
+
+    #
+    # settings for rendering the page: http://phantomjs.org/api/webpage/
+    #
+
     page: {
       canGoBack: nil,          # allow javascript navigation, defaults to false
       canGoForward: nil,       # allow javascript navigation, defaults to false
@@ -49,7 +68,9 @@ class Shrimple
         width: nil,
         height: nil
       },
-      customHeaders: nil,       # headers added to every HTTP request.  if nil, Shrimple.DefaultHeaders is used.
+      customHeaders: {       # headers added to every HTTP request.  if nil, Shrimple.DefaultHeaders is used.
+        "Accept-Encoding" => "identity" # Don't accept gzipped responses, work around https://github.com/ariya/phantomjs/issues/10930
+      },
       # event?  http://phantomjs.org/api/webpage/property/event.html
       # libraryPath?           # might be useful if we add support for calling injectJS
       navigationLocked: nil,   # if true, phantomjs prevents navigating away from the page. Defaults to false.
@@ -87,29 +108,4 @@ class Shrimple
       zoomFactor: nil            # 4.0 increases page by 4X before rendering (right?), 0.25 shrinks page by 4X.  Defaults to 1.0.
     }
   }
-
-
-  # if page.customHeaders is nil, it gets set to this
-  DefaultHeaders = {
-   "Accept-Encoding" => "identity"    # Don't accept gzipped responses, work around https://github.com/ariya/phantomjs/issues/10930
-   # you can also use page.settings.userAgent to set the useragent.
-  }
 end
-
-
-
-# read-only fields, used for output:
-#  content
-#  frameContent
-#  frameName
-#  framePlainText
-#  frameTitle
-#  frameUrl
-#  framesCount
-#  framesName
-#  pages    -- child pages opened with window.open() right?
-#  pagesWindowName
-#  plainText
-#  title
-#  url
-#  windowName

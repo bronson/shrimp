@@ -4,6 +4,9 @@ require 'spec_helper'
 
 
 describe Shrimple do
+  # we send this in every request until Phantom fixes its bug, see default_config.rb
+  let(:custom_headers) { {"page" => {"customHeaders"=>{"Accept-Encoding"=>"identity"}}} }
+
   it "automatically finds the executable and renderer" do
     s = Shrimple.new
     expect(File.executable? s.executable).to be true
@@ -45,7 +48,7 @@ describe Shrimple do
           settings: { userAgent: 'webkitalike' },
           zoomFactor: 0.25
         }
-      }).to_hash)
+      }).merge(custom_headers).to_hash)
     end
 
     s.render 'infile', to: 'outfile'
@@ -66,19 +69,19 @@ describe Shrimple do
     s.merge!(executable: nil, renderer: nil)
     # can either start with a value for input
     expect(s.get_full_options("input", to: "output")).
-      to eq({'input' => 'input', 'output' => 'output'})
+      to eq({'input' => 'input', 'output' => 'output'}.merge(custom_headers))
     # or just use hashes all the way through
     expect(s.get_full_options(input: "eenput", output: "ootput")).
-      to eq({'input' => 'eenput', 'output' => 'ootput'})
+      to eq({'input' => 'eenput', 'output' => 'ootput'}.merge(custom_headers))
   end
 
   it "has options with indifferent access" do
     s = Shrimple.new
     s.merge!('executable' => nil, renderer: nil)
-    expect(s.get_full_options(executable: 'symbol', 'executable' => 'string')).to eq({'executable' => 'string'})
+    expect(s.get_full_options(executable: 'symbol', 'executable' => 'string')).to eq({'executable' => 'string'}.merge(custom_headers))
     s.merge!(executable: 'symbol')
-    expect(s.get_full_options(executable: 'symbol')).to eq({'executable' => 'symbol'})
-    expect(Shrimple.compact!(s.to_hash)).to eq({'executable' => 'symbol'})
+    expect(s.get_full_options(executable: 'symbol')).to eq({'executable' => 'symbol'}.merge(custom_headers))
+    expect(Shrimple.compact!(s.to_hash)).to eq({'executable' => 'symbol'}.merge(custom_headers))
   end
 
   it "has a working compact" do
