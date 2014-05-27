@@ -29,7 +29,9 @@ class Shrimple
     end
 
     def kill_all
-      first.kill until @processes.empty?
+      while f = first
+        f.kill
+      end
     end
 
     # blocks until any child process returns (unless nonblock is true)

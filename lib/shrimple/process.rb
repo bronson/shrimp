@@ -55,12 +55,12 @@ class Shrimple
       @timed_out
     end
 
-
-    # kill-o-zaps the phantom process (using -9 if needed), waits until it's truly gone
+    # kill-o-zaps the phantom process now (using -9 if needed), then waits until it's truly gone
     def kill seconds_until_panic=2
       @killed = true
       if @child.alive?
-        ::Process.kill("TERM", @child.pid)
+        # rescue because process might have died between previous line and this one
+        ::Process.kill("TERM", @child.pid) rescue Errno::ESRCH
       end
       if !@child.join(seconds_until_panic)
         ::Process.kill("KILL", @child.pid) if @child.alive?
