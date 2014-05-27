@@ -57,7 +57,7 @@ describe Shrimple::Process do
 
       expect(process.finished?).to eq true
       expect(process.killed?).to eq true
-      expect(process.success?).to eq nil
+      expect(process.success?).to eq false
       expect(process.timed_out?).to eq false
     end
 

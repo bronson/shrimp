@@ -44,7 +44,7 @@ class Shrimple
         # child was killed, no problem
       ensure
         reader.close
-        writer.close
+        writer.close rescue Errno::EPIPE
       end
     end
 
