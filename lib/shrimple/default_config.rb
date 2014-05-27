@@ -1,5 +1,5 @@
 # Here is a list of all the phantomjs settings that we know about.
-# you can set any option you want -- it need not be documented or listed here.
+# Note that you can set any option you want.  It need not be listed here.
 #
 # nil means leave unset -- use Phantom's defaults
 
@@ -14,7 +14,7 @@ class Shrimple
     background: nil,       # false blocks until page is rendered, true returns immediately
     executable: nil,       # specifies the PhantomJS executable to use. If unspecified then Shrimple will search for one.
     renderer: nil,         # the render script to use. Useful for testing, or if you want to do something other than rendering the page.
-    renderTime: nil,       # time in seconds after which the PhantomJS process should be killed
+    timeout: nil,          # time in seconds after which the PhantomJS process should simply be killed
     input: nil,            # specifies the URL to request (use file:// for local assets)
     output: nil,           # path to the rendered output file, nil to buffer output in memory.  "to" is a more readable synonym: 'render url, to: file'.
     stderr: nil,           # path to the file to receive PhantomJS's stderr, leave nil to store it in a string
@@ -26,7 +26,7 @@ class Shrimple
 
     render: {
       format: nil,         # format for the output file.  usually supplied by a helper (render_pdf, render_png, etc)
-      quality: nil         # only relevant to format=jpeg I think, 1-100.  not sure what Phantom's default is
+      quality: nil         # only relevant to format=jpeg I think, range is 1-100.  not sure what Phantom's default is
     },
 
 

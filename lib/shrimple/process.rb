@@ -12,7 +12,7 @@ class Shrimple
 
     # runs cmd, passes instr on its stdin, and fills outio and
     # errio with the command's output.
-    def initialize cmd, inio, outio, errio
+    def initialize cmd, inio, outio, errio, timeout=nil
       @start_time = Time.now
       @chin, @chout, @cherr, @child = Open3.popen3(*cmd)
 
@@ -23,7 +23,7 @@ class Shrimple
       @throut = Thread.new { drain(@chout, outio) }
       @threrr = Thread.new { drain(@cherr, errio) }
       # ensure cleanup is called when the child exits. (strange it requires a whole new thread...?)
-      @thrchild = Thread.new { @child.join; cleanup }
+      @thrchild = Thread.new { kill unless @child.join(timeout); cleanup }
     end
 
     # reads every last drop, then closes both files
@@ -77,7 +77,7 @@ class Shrimple
       if !@child.join(seconds_until_panic)
         ::Process.kill("KILL", @child.pid) if @child.alive?
       end
-      @thrchild.join
+      @thrchild.join unless Thread.current == @thrchild
     end
 
     # blocks until the PhantomJS process is finished. raises an exception if it failed.

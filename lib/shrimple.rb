@@ -3,7 +3,6 @@
 # TODO: add a header and footer to the page, printheaderfooter.coffee
 # TODO: support for injectjs?   http://phantomjs.org/tips-and-tricks.html
 #       and maybe page.evaluate(function() { document.body.bgColor = 'white'; });
-# TODO: add a hard timeout.  remove any other timeouts because who cares?
 # TODO: add onResourceTimeout: https://github.com/onlyurei/phantomjs/commit/fa5a3504070f86a99f11469a3b7eb17a0b005ef7
 # TODO: add cookiefile support?
 # TODO: wow --config=file sucks.  maybe add a way to specify cmdline args again?

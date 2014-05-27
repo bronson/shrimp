@@ -30,7 +30,7 @@ class Shrimple
         $stderr.puts "STDIN: #{options.to_json}"
       end
 
-      super(command_line, @stdin, @stdout, @stderr)
+      super(command_line, @stdin, @stdout, @stderr, options[:timeout])
     end
 
     def command_line

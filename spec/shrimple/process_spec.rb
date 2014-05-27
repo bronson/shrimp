@@ -64,4 +64,11 @@ describe Shrimple::Process do
     }.to raise_error(/[Nn]o such file/)
     expect(Shrimple.processes.count).to eq 0
   end
+
+  it "has a working timeout" do
+    elapsed = time do
+      process = Shrimple::Process.new(['sleep', '10'], chin, chout, cherr, 0)
+    end
+    expect(elapsed).to be < 0.5
+  end
 end
