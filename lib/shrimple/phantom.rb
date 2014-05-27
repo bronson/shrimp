@@ -77,7 +77,6 @@ class Shrimple
     def wait
       super
       unless @child.value.success?
-        # TODO: this could be better
         raise "PhantomJS returned #{@child.value.exitstatus}: #{stderr}"
       end
     end

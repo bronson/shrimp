@@ -23,9 +23,6 @@ def prepare_file outfile
 end
 
 
-# TODO: test a render.js that doesn't compile
-# TODO: test PhantomJS failures
-
 describe Shrimple do
   it "echoes its arguments" do
     s = Shrimple.new(renderer: 'spec/parse_and_print_stdin.js')
@@ -49,7 +46,6 @@ describe Shrimple do
   # end
 
 
-  # TODO: what happens when asked to render a file that doesn't exist?  Currently it hangs.
   it "renders text to a string" do
     s = Shrimple.new
     result = s.render_text("file://#{example_html}")
@@ -87,6 +83,15 @@ describe Shrimple do
       s.render_text("file://#{example_html}")
     }.to raise_exception(/Can't open 'this-does-not-exist'/)
   end
+
+  # # it's hopeless: https://github.com/ariya/phantomjs/issues/10687
+  #
+  # it "handles a syntax error in a render script" do
+  #   s = Shrimple.new(renderer: 'spec/syntax_error.js')
+  #   expect {
+  #     s.render_text("file://#{example_html}")
+  #   }.to raise_exception(/Can't open 'this-does-not-exist'/)
+  # end
 
   it "supports a debugging mode" do
     # isn't there a better way of resetting global variables in rspec?
