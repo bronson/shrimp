@@ -25,8 +25,16 @@ class Shrimple
       @thrin  = Thread.new { drain(inio, @chin) }
       @throut = Thread.new { drain(@chout, outio) }
       @threrr = Thread.new { drain(@cherr, errio) }
+
       # ensure cleanup is called when the child exits. (strange it requires a whole new thread...?)
-      @thrchild = Thread.new { outatime unless @child.join(timeout); cleanup }
+      @thrchild = Thread.new {
+        if timeout
+          outatime unless @child.join(timeout)
+        else
+          @child.join
+        end
+        cleanup
+      }
     end
 
     # reads every last drop, then closes both files
