@@ -29,7 +29,7 @@ describe Shrimple do
     output = s.render
     result = JSON.parse(output.stdout)
     expect(result['renderer']).to eq 'spec/parse_and_print_stdin.js'
-    expect(result['processed']).to be_true   # added by the phantom script
+    expect(result['processed']).to eq true   # added by the phantom script
     expect(output.stderr).to eq ""
   end
 
@@ -81,7 +81,7 @@ describe Shrimple do
     s = Shrimple.new(background: true)
     result = s.render_text("file://this-does-not-exist")
     child = Shrimple.processes.wait_next
-    
+
     expect(child).to eq result
     expect(result.success?).to be_false
     expect(result.stderr).to match(/Unable to load.*this-does-not-exist/)

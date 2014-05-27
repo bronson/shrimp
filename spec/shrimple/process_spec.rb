@@ -13,7 +13,7 @@ describe Shrimple::Process do
     process = Shrimple::Process.new('cat', bigin, chout, cherr)
     process.wait
     expect(chout.string).to eq bigin.string
-    expect(process.finished?).to be_true
+    expect(process.finished?).to eq true
   end
 
   it "waits until a sleeping command is finished" do
@@ -31,7 +31,7 @@ describe Shrimple::Process do
       expect(process.stop_time).not_to eq nil
       claimed = process.stop_time - process.start_time
       expect(chout.string).to eq 'done.'
-      expect(process.finished?).to be_true
+      expect(process.finished?).to eq true
     end
 
     # ensure process elapsed time is in the ballpark
@@ -40,20 +40,20 @@ describe Shrimple::Process do
     expect(claimed).to be <= elapsed
 
     expect(Shrimple.processes.count).to eq 0
-    expect(chout.closed_read?).to be_true
-    expect(cherr.closed_read?).to be_true
+    expect(chout.closed_read?).to eq true
+    expect(cherr.closed_read?).to eq true
   end
 
   it "has a working kill method" do
     elapsed = time do
       process = Shrimple::Process.new(['sleep', '0.1'], chin, chout, cherr)
       process.kill
-      expect(process.finished?).to be_true
+      expect(process.finished?).to eq true
     end
 
     expect(elapsed).to be < 0.1
-    expect(chout.closed_read?).to be_true
-    expect(cherr.closed_read?).to be_true
+    expect(chout.closed_read?).to eq true
+    expect(cherr.closed_read?).to eq true
   end
 
   it "handles invalid commands" do

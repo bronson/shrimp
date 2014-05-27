@@ -48,8 +48,8 @@ describe Shrimple::ProcessMonitor do
 
     child = Shrimple.processes.wait_next
     expect(child).to eq process2
-    expect(child.finished?).to be_true
-    expect(child.success?).to be_true
+    expect(child.finished?).to eq true
+    expect(child.success?).to eq true
     expect(Shrimple.processes.count).to eq 2
 
     child = Shrimple.processes.wait_next
