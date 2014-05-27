@@ -36,6 +36,40 @@ class Shrimple
       super(command_line, @stdin, @stdout, @stderr, options[:timeout])
     end
 
+    # blocks until the PhantomJS process is finished. raises an exception if it failed.
+    def wait
+      _cleanup
+      unless @child.value.success?
+        raise Shrimple::TimedOut.new if timed_out?
+        raise Shrimple::PhantomError.new("PhantomJS returned #{@child.value.exitstatus}: #{stderr}")
+      end
+    end
+
+    def stdout
+      read_io @stdout
+    end
+
+    def stderr
+      read_io @stderr
+    end
+
+
+    # called when process is terminated.  Probably called from another thread so be threadsafe.
+    # will probably be called multiple times
+    def _cleanup
+      super
+      if @config
+        @config.unlink
+        @config = nil
+      end
+
+      proc = (success? ? @onSuccess : @onError)
+      @onSuccess = @onError = nil     # ensure we don't call callback multiple times
+      proc.call(self) if proc
+    end
+
+
+  private
     def command_line
       if @options[:executable].kind_of? Array 
         # if executable is an array then we assume it contains all necessary args (so :renderer is ignored)
@@ -68,37 +102,6 @@ class Shrimple
         io.rewind
         io.read
       end
-    end
-
-    # called when process is terminated.  Probably called from another thread so be threadsafe.
-    # will probably be called multiple times
-    def cleanup
-      super
-      if @config
-        @config.unlink
-        @config = nil
-      end
-
-      proc = (success? ? @onSuccess : @onError)
-      @onSuccess = @onError = nil     # ensure we don't call callback multiple times
-      proc.call(self) if proc
-    end
-
-    # blocks until the PhantomJS process is finished. raises an exception if it failed.
-    def wait
-      super
-      unless @child.value.success?
-        raise Shrimple::TimedOut.new if timed_out?
-        raise Shrimple::PhantomError.new("PhantomJS returned #{@child.value.exitstatus}: #{stderr}")
-      end
-    end
-
-    def stdout
-      read_io @stdout
-    end
-
-    def stderr
-      read_io @stderr
     end
   end
 end

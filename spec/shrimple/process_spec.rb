@@ -11,7 +11,7 @@ describe Shrimple::Process do
   it "has a working drain method" do
     bigin = StringIO.new('x' * 1024 * 1024) # at least 1 MB of data to test drain loop
     process = Shrimple::Process.new('cat', bigin, chout, cherr)
-    process.wait
+    process._cleanup
     expect(chout.string).to eq bigin.string
     expect(process.finished?).to eq true
   end
@@ -26,7 +26,7 @@ describe Shrimple::Process do
       # and for some reason jruby requires the explicit subshell; mri launches it automatically
       process = Shrimple::Process.new('/bin/sh -c "sleep 0.1 && printf done."', chin, chout, cherr)
       expect(Shrimple.processes.count).to eq 1
-      process.wait
+      process._cleanup
       expect(process.start_time).not_to eq nil
       expect(process.stop_time).not_to eq nil
       claimed = process.stop_time - process.start_time

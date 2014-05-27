@@ -16,21 +16,6 @@ class Shrimple
       @max_processes = max_processes
     end
 
-    def add process
-      @mutex.synchronize do
-        if @max_processes >= 0 && @processes.count >= @max_processes
-          raise Shrimple::TooManyProcessesError.new("launched process #{@processes.count+1} of #{@max_processes} maximum")
-        end
-        @processes.push process
-      end
-    end
-
-    def remove process
-      @mutex.synchronize do
-        @processes.delete process
-      end
-    end
-
     def first
       @mutex.synchronize do
         @processes.first
@@ -60,8 +45,24 @@ class Shrimple
 
       thread = ThreadsWait.new(threads.keys).next_wait(nonblock)
       process = threads[thread]
-      process.wait_for_the_end   # otherwise it might be finished, might not
+      process._cleanup # otherwise process will be in an indeterminite state
       process
+    end
+
+
+    def _add process
+      @mutex.synchronize do
+        if @max_processes >= 0 && @processes.count >= @max_processes
+          raise Shrimple::TooManyProcessesError.new("launched process #{@processes.count+1} of #{@max_processes} maximum")
+        end
+        @processes.push process
+      end
+    end
+
+    def _remove process
+      @mutex.synchronize do
+        @processes.delete process
+      end
     end
   end
 end

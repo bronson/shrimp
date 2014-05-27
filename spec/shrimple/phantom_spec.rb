@@ -45,7 +45,7 @@ describe Shrimple::Phantom do
     expect(File).to exist(path)
     wr.write("done.\n")
     wr.close
-    phantom.wait
+    phantom._cleanup   # calling internal function: probably a test smell
 
     expect(phantom.config).to eq nil
     expect(File).not_to exist(path)

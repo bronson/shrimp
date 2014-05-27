@@ -16,7 +16,7 @@ class Shrimple
       @start_time = Time.now
       @chin, @chout, @cherr, @child = Open3.popen3(*cmd)
 
-      Shrimple.processes.add(self)
+      Shrimple.processes._add(self)
       @chout.binmode
 
       @killed = false
@@ -33,27 +33,8 @@ class Shrimple
         else
           @child.join
         end
-        cleanup
+        _cleanup
       }
-    end
-
-    # reads every last drop, then closes both files
-    # called from thread context so you must synchronize any external accesses
-    def drain reader, writer
-      begin
-        # randomly chosen buffer size
-        loop { writer.write(reader.readpartial(256*1024)) }
-      rescue EOFError
-        # not an error
-        # puts "EOF STDOUT" if reader == @chout
-        # puts "EOF STDERR" if reader == @cherr
-        # puts "EOF STDIN #{reader}" if writer == @chin
-      rescue Errno::EPIPE
-        # child was killed, no problem
-      ensure
-        reader.close
-        writer.close rescue Errno::EPIPE
-      end
     end
 
 
@@ -75,21 +56,7 @@ class Shrimple
     end
 
 
-    # ennsure all threads have exited to prevent synchronization errors
-    # if the phantom process is truly stuck, this might block forever
-    def wait_for_the_end
-      [@thrin, @throut, @threrr, @child].each(&:join)
-      @thrchild.join unless Thread.current == @thrchild
-    end
-
-    # called from thread context so must synchronize.  may be called multiple times.
-    def cleanup
-      wait_for_the_end
-      @stop_time ||= Time.now
-      Shrimple.processes.remove(self)
-    end
-
-    # kill-o-zaps the rendering process and waits until it's sure it's truly gone
+    # kill-o-zaps the phantom process (using -9 if needed), waits until it's truly gone
     def kill seconds_until_panic=2
       @killed = true
       if @child.alive?
@@ -101,18 +68,48 @@ class Shrimple
       @thrchild.join unless Thread.current == @thrchild
     end
 
-    def outatime
-      @timed_out = true
-      kill
-    end
-
-    def wait
-      cleanup
-    end
 
     # only meant to be used by the ProcessMonitor
     def _child_thread
       @child
     end
+
+    # may be called multiple times due to harmless race conditions
+    def _cleanup
+      wait_for_the_end
+      @stop_time ||= Time.now
+      Shrimple.processes._remove(self)
+    end
+
+
+  private
+    def wait_for_the_end
+      [@thrin, @throut, @threrr, @child].each(&:join)
+      @thrchild.join unless Thread.current == @thrchild
+    end
+
+    def outatime
+      @timed_out = true
+      kill
+    end
+
+    # reads every last drop, then closes both files.  must be threadsafe.
+    def drain reader, writer
+      begin
+        # randomly chosen buffer size
+        loop { writer.write(reader.readpartial(256*1024)) }
+      rescue EOFError
+        # not an error
+        # puts "EOF STDOUT" if reader == @chout
+        # puts "EOF STDERR" if reader == @cherr
+        # puts "EOF STDIN #{reader}" if writer == @chin
+      rescue Errno::EPIPE
+        # child was killed, no problem
+      ensure
+        reader.close
+        writer.close rescue Errno::EPIPE
+      end
+    end
+
   end
 end
