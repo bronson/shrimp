@@ -20,9 +20,13 @@ describe Shrimple do
     expect(s.renderer).to eq example_html
   end
 
-  it "dies if executable can't be found" do
+  it "dies if specified executable can't be found" do
     s = Shrimple.new(executable: '/bin/THIS_FILE_DOES.not.Exyst')
     expect { s.render 'http://be.com' }.to raise_exception(/[Nn]o such file/)
+  end
+
+  it "dies if default executable can't be found" do
+    expect { Shrimple.new.render('http://be.com', executable: nil) }.to raise_exception(/PhantomJS not found/)
   end
 
   it "allows a bunch of different ways to set options" do

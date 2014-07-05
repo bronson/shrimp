@@ -68,6 +68,9 @@ class Shrimple
 
   private
     def command_line
+      if @options[:executable].nil?
+        raise "PhantomJS not found. Specify its executable with 'executable' option."
+      end
       if @options[:executable].kind_of? Array 
         # if executable is an array then we assume it contains all necessary args (so :renderer is ignored)
         command = @options[:executable]
