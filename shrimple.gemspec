@@ -1,16 +1,21 @@
 Gem::Specification.new do |s|
   s.name     = 'shrimple'
-  s.version  = '0.3.0'
+  s.version  = '0.8.0'
   s.authors  = ['Scott Bronson']
   s.email    = ['brons_shrimple@rinspin.com']
   s.homepage = 'http://github.com/bronson/shrimple'
   s.summary  = 'A simple Ruby interface to PhantomJS'
-  s.description = 'Use PhantomJS to generate PDFs, PNGs, etc from Files, URLs, ...'
-
-  s.require_paths = ['lib']
-  s.files = Dir['README.markdown', 'lib/**/*', 'Gemfile', 'Rakefile']
-  s.test_files = Dir['spec/**/*']
-
-  s.add_development_dependency 'rspec', ['>= 2.5']
+  s.description = 'Use PhantomJS to generate PDFs, PNGs, text files, etc.'
   s.license = 'MIT'
+
+  s.files         = `git ls-files -z`.split("\x0")
+  s.executables   = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  s.test_files    = s.files.grep(%r{^(test|spec|features)/})
+  s.require_paths = ['lib']
+
+  s.add_runtime_dependency 'hashie'
+
+  s.add_development_dependency 'rake'
+  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'dimensions'
 end
