@@ -9,6 +9,7 @@
 # TODO: add ability to specify max number of processes in process_monitor
 # TODO: add onResourceTimeout: https://github.com/onlyurei/phantomjs/commit/fa5a3504070f86a99f11469a3b7eb17a0b005ef7
 # TODO: add cookiefile support?
+# TODO: should block if user tries to launch too man phantom processes?  Like SizedQueue.
 # TODO: wow --config=file sucks.  maybe add a way to specify cmdline args again?
 #       either that or fix phantomjs...  https://github.com/ariya/phantomjs/issues/12265 https://github.com/ariya/phantomjs/issues/11775
 # TODO: test that page.customHeaders appear in the network requests (how....?)
@@ -19,6 +20,7 @@
 # TODO: include lots of info about page load in logfile
 # TODO: documentation!  probably using sdoc or yard?
 # TODO: possible to test margins?  printmargins.coffee
+# TODO: bl.ocks.org/mbostock: page renders before it's done downloading.  able to add arbitrary delay or js function to wait before rendering?
 
 
 require 'hashie/mash'

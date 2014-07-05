@@ -15,7 +15,7 @@ class Shrimple
     executable: nil,       # specifies the PhantomJS executable to use. If unspecified then Shrimple will search for one.
     renderer: nil,         # the render script to use. Useful for testing, or if you want to do something other than rendering the page.
     timeout: nil,          # time in seconds after which the PhantomJS process should simply be killed
-    input: nil,            # specifies the URL to request (use file:// for local assets)
+    input: nil,            # specifies the URL to request (use file:// for local assets).  Can also be specified by the optional first argument to render calls.
     output: nil,           # path to the rendered output file, nil to buffer output in memory.  "to" is a more readable synonym: 'render url, to: file'.
     stderr: nil,           # path to the file to receive PhantomJS's stderr, leave nil to store it in a string
     onSuccess: nil,        # a function to call when the pdf has been successfully rendered.  called before process is removed from Shrimple.processes so, if it blocks, process table fills up.  Useful for rate limiting.
@@ -79,12 +79,13 @@ class Shrimple
       offlineStoragePath: nil, # file to contain offline storage data
       offlineStorageQuota: nil, # maximum amount of data allowed in offline storage
       ownsPages: nil,          # should child pages (opened with window.open()) be closed when parent closes?  Defaults to true.
-      paperSize: {             # the size of the rendered output (overridden by render_pdf and render_png)
+      paperSize: {             # the size of the rendered output http://phantomjs.org/api/webpage/property/paper-size.html
         format: nil,           # size for pdf pages, defaults to 'A4'?
         orientation: nil,      # orientation for pdf pages, defautls to 'portrait?'
         width: nil,            # width of png/jpeg/gif
         height: nil,           # height of png/jpeg/gif
-        border: nil            # defaults to '1cm'?
+        border: nil            # blank border around the page, defaults to '1cm'?
+        # margin: nil          # use border instead
       },
       scrollPosition: {        # scroll page to here before rendering
         left: nil,             # defaults to (0,0) which renders the entire page
