@@ -37,10 +37,10 @@ describe Shrimple do
     s[:page][:settings][:userAgent] = 'webkitalike'
     s.options.page.zoomFactor = 0.25
 
-    mock_phanom = Object.new
-    mock_phanom.should_receive(:wait).once
+    mock_phantom = Object.new
+    expect(mock_phantom).to receive(:wait).once
 
-    allow(Shrimple::Phantom).to receive(:new).once.and_return(mock_phanom) do |opts|
+    allow(Shrimple::Phantom).to receive(:new).once do |opts|
       expect(opts.to_hash).to eq(Hashie::Mash.new({
         input: 'infile',
         output: 'outfile',
@@ -53,6 +53,7 @@ describe Shrimple do
           zoomFactor: 0.25
         }
       }).merge(custom_headers).to_hash)
+      mock_phantom
     end
 
     s.render 'infile', to: 'outfile'
@@ -62,7 +63,7 @@ describe Shrimple do
     s = Shrimple.new(executable: '/bin/cat', renderer: 'tt.js', background: true)
 
     mock_phantom = Object.new
-    mock_phantom.should_not_receive(:wait)
+    expect(mock_phantom).not_to receive(:wait)
     allow(Shrimple::Phantom).to receive(:new).once.and_return(mock_phantom)
 
     p = s.render 'infile'
