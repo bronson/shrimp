@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name     = 'shrimple'
-  s.version  = '0.8.0'
+  s.version  = '0.8.2'
   s.authors  = ['Scott Bronson']
   s.email    = ['brons_shrimple@rinspin.com']
   s.homepage = 'http://github.com/bronson/shrimple'

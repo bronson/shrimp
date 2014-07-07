@@ -28,6 +28,12 @@ class Shrimple
       end
     end
 
+    def find &block
+      @mutex.synchronize do
+        @processes.find(&block)
+      end
+    end
+
     def kill_all
       while f = first
         f.kill

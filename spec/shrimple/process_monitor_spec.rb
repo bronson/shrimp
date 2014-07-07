@@ -66,4 +66,12 @@ describe Shrimple::ProcessMonitor do
       child = Shrimple.processes.wait_next
     }.to raise_exception(ThreadsWait::ErrNoWaitingThread)
   end
+
+  it "can find a process" do
+    processes = Shrimple::ProcessMonitor.new(-1)
+    object = Object.new
+    processes._add(object)
+    result = processes.find { |o| o == object }
+    expect(result).to eq object
+  end
 end
