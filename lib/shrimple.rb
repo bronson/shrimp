@@ -81,15 +81,16 @@ class Shrimple
 
   def get_full_options src, *inopts
     exopts = options.dup
+    # can't deep_dup procs so remove them and add them back
     onSuccess = exopts.delete(:onSuccess)
     onError = exopts.delete(:onError)
 
     full_opts = Shrimple.deep_dup(exopts)
+    full_opts.merge!(onSuccess: onSuccess, onError: onError)
     full_opts.deep_merge!(src) if src && src.kind_of?(Hash)
     inopts.each { |opt| full_opts.deep_merge!(opt) }
     full_opts.merge!(input: src) if src && !src.kind_of?(Hash)
     full_opts.merge!(output: full_opts.delete(:to)) if full_opts[:to]
-    full_opts.merge!(onSuccess: onSuccess, onError: onError)
 
     self.class.compact!(full_opts)
     full_opts

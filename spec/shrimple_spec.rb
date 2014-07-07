@@ -89,6 +89,13 @@ describe Shrimple do
     expect(Shrimple.compact!(s.to_hash)).to eq({'executable' => 'symbol'}.merge(custom_headers))
   end
 
+  it "properly merges callbacks" do
+    # this is in response to a bug where it was impossible to pass onSuccess/onError directly to render
+    s = Shrimple.new
+    s.merge!('executable' => nil, renderer: nil) # can't pass to constructor since nil means use default
+    expect(s.get_full_options(onSuccess: 4, onError: 5)).to eq({'onSuccess' => 4, 'onError' => 5}.merge(custom_headers))
+  end
+
   it "has a working compact" do
     expect(Shrimple.compact!({
       a: nil,
