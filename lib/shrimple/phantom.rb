@@ -12,8 +12,6 @@ class Shrimple
 
     def initialize options
       @options = options
-      @onSuccess = options.delete(:onSuccess)
-      @onError = options.delete(:onError)
 
       # write the file required by phantom's --config option
       if options[:config]
@@ -59,7 +57,7 @@ class Shrimple
     def _cleanup
       super
 
-      proc = (success? ? @onSuccess : @onError)
+      proc = (success? ? @options[:onSuccess] : @options[:onError])
       proc.call(self) if proc
 
       @config.unlink if @config
