@@ -10,11 +10,11 @@ Shrimple started as a set of patches for [Shrimp](https://github.com/adjust/shri
 
 ## Installation
 
-Install [PhantomJS](http://phantomjs.org/download.html), then add this line to your application's Gemfile:
+Install [PhantomJS](http://phantomjs.org/download.html), add this line to your application's Gemfile:
 
-    gem 'shrimple', git: 'https://github.com/bronson/shrimple'
+    gem 'shrimple'
 
-and execute `bundle`.
+then execute `bundle`.
 
 ## Usage
 
@@ -171,7 +171,6 @@ The pipeline stays as full as possible without violating its constraints.
 - Allows configuring pretty much anything: proxies, userName/password, scrollPosition, jpeg quality, etc.
 - Prevents potential shell attacks by ensuring options aren't passed on the command line.
 - Better error handling.
-- Removed middleware.  In my app, background mode made it unnecessary.  Besides, I could never get it to work reliably.
 
 
 ## Copyright
