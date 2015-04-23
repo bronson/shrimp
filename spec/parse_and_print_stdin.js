@@ -4,7 +4,8 @@
 
 var system = require('system')
 
-config = JSON.parse(system.stdin.read())
+var sys = system.stdin.read()
+config = JSON.parse(sys)
 config.processed = true
 console.log(JSON.stringify(config))
 phantom.exit(0)

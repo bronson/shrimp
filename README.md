@@ -1,7 +1,7 @@
 # Shrimple
 
 Launches PhantomJS to render web sites or local files (or have
-Phantom do pretty much everything).
+Phantom do pretty much anything).
 Shrimple started as a set of patches for [Shrimp](https://github.com/adjust/shrimp).
 
 [![Build Status](https://travis-ci.org/bronson/shrimple.svg?branch=master)](https://travis-ci.org/bronson/shrimple)
@@ -15,6 +15,9 @@ Install [PhantomJS](http://phantomjs.org/download.html), add this line to your a
     gem 'shrimple'
 
 then execute `bundle`.
+
+Right now we only work with the Phantom 1.9 series.  1.8 is too
+old and 2.0 is too new.
 
 ## Usage
 
