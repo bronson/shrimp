@@ -8,6 +8,17 @@ Shrimple started as a set of patches for [Shrimp](https://github.com/adjust/shri
 [![Gem Version](https://badge.fury.io/rb/shrimple.svg)](http://badge.fury.io/rb/shrimple)
 
 
+# Development Ceased
+
+While this gem still excels at parallel bulk rendering of PDFs,
+especially in the background,
+I don't have this need anymore.  My applications have switched to
+on-demand rendering using ActiveJob and calling PhantomJS directly.
+
+Feel free to use this gem if you want, and I'm happy to support it.
+I just won't be developing it anymore.
+
+
 ## Installation
 
 Install [PhantomJS](http://phantomjs.org/download.html), add this line to your application's Gemfile:
